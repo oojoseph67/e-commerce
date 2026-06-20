@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	Id        uint           `json:"id" gorm:"primaryKey"`
+	ID        uint           `json:"id" gorm:"primaryKey"`
 	Email     string         `json:"email" gorm:"uniqueIndex;not null"`
 	Password  string         `json:"_" gorm:"not null"`
 	FirstName string         `json:"first_name" gorm:"not null"`
@@ -33,8 +33,8 @@ const (
 )
 
 type RefreshToken struct {
-	Id        uint           `json:"id" gorm:"primaryKey"`
-	UserId    uint           `json:"user_id" gorm:"not null"`
+	ID        uint           `json:"id" gorm:"primaryKey"`
+	UserID    uint           `json:"user_id" gorm:"not null"`
 	Token     string         `json:"token" gorm:"uniqueIndex;not null"`
 	ExpiresAt time.Time      `json:"expires_at" gorm:"not null"`
 	CreatedAt time.Time      `json:"updated_at"`

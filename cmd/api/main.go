@@ -9,13 +9,13 @@ import (
 
 func main() {
 	log := logger.New()
-	config, err := config.Load()
+	configuration, err := config.Load()
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to load config")
 	}
 
-	db, err := database.New(config.Database)
+	db, err := database.New(&configuration.Database)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to database")
 	}
@@ -25,8 +25,13 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to get database connection")
 	}
 
-	defer mainDB.Close()
-	gin.SetMode(config.Server.GinMode)
+	defer func() {
+		if err := mainDB.Close(); err != nil {
+			log.Fatal().Err(err).Msg("failed to close database connection")
+		}
+	}()
+
+	gin.SetMode(configuration.Server.GinMode)
 
 	log.Info().Msg("starting server")
 
