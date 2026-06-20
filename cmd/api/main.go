@@ -48,8 +48,9 @@ func main() {
 	httpServer := &http.Server{
 		Addr:         fmt.Sprintf(":%s", configuration.Server.Port),
 		Handler:      router,
-		ReadTimeout:  10 * time.Second,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  2 * time.Minute,
 	}
 
 	go func() {
@@ -70,7 +71,8 @@ func main() {
 	defer cancel()
 
 	if err := httpServer.Shutdown(ctx); err != nil {
-		log.Fatal().Err(err).Msg("failed to shutdown http server")
+		log.Panic().Err(err).Msg("failed to shutdown http server")
+		return
 	}
 
 	log.Info().Msg("shutting down database")

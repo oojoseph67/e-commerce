@@ -12,7 +12,7 @@ type User struct {
 	Password  string         `json:"_" gorm:"not null"`
 	FirstName string         `json:"first_name" gorm:"not null"`
 	LastName  string         `json:"last_name" gorm:"not null"`
-	Phone     string         `json:"phone"`
+	Phone     string         `json:"phone" gorm:"not null"`
 	IsActive  string         `json:"is_active" gorm:"default:true"`
 	Role      UserRole       `json:"role" gorm:"default:customer"`
 	CreatedAt time.Time      `json:"created_at"`
