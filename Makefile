@@ -20,6 +20,10 @@ dev: ## Run the application with live reload
 lint: ## Run linter
 	golangci-lint run ./...
 
+format: ## Run the go formatter to format code and rearrange imports
+	@gofmt -s -w .
+	@$(shell go env GOPATH)/bin/goimports -w .
+
 migrate-up: ## Run database migrations up
 	migrate -path db/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" up
 
