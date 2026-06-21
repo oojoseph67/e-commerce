@@ -1,4 +1,4 @@
-CREATE TABLE refresh_tokens (
+CREATE TABLE IF NOT EXISTS refresh_tokens (
 	id SERIAL PRIMARY KEY,
 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	token VARCHAR(500) UNIQUE NOT NULL,
@@ -7,6 +7,6 @@ CREATE TABLE refresh_tokens (
 	deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_refresh_tokens_token ON refresh_tokens(token);
-CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
-CREATE INDEX idx_refresh_tokens_deleted_at ON refresh_tokens(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_deleted_at ON refresh_tokens(deleted_at);

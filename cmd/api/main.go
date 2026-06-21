@@ -45,6 +45,7 @@ func main() {
 
 	srv := server.New(configuration, db, log)
 	router := srv.SetupRoutes()
+
 	httpServer := &http.Server{
 		Addr:         fmt.Sprintf(":%s", configuration.Server.Port),
 		Handler:      router,

@@ -25,10 +25,13 @@ format: ## Run the go formatter to format code and rearrange imports
 	@$(shell go env GOPATH)/bin/goimports -w .
 
 migrate-up: ## Run database migrations up
-	migrate -path db/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" up
+	migrate -path ./internal/database/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" up
 
 migrate-down: ## Run database migrations down
-	migrate -path db/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" down
+	migrate -path ./internal/database/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" down
+
+migrate-force: ## Run database migration force
+	migrate -path ./internal/database/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" force 4
 
 docker-up: ## Run docker up
 	docker compose -f docker/docker-compose.yml up -d

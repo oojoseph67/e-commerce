@@ -1,4 +1,4 @@
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
 	id SERIAL PRIMARY KEY,
 	category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
 	name VARCHAR(255) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE products (
 	deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_products_category_id ON products(category_id);
-CREATE INDEX idx_products_sku ON products(sku);
-CREATE INDEX idx_products_is_active ON products(is_active);
-CREATE INDEX idx_products_deleted_at ON products(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_products_category_id ON products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku);
+CREATE INDEX IF NOT EXISTS idx_products_is_active ON products(is_active);
+CREATE INDEX IF NOT EXISTS idx_products_deleted_at ON products(deleted_at);

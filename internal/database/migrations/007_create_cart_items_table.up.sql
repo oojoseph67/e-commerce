@@ -1,4 +1,4 @@
-CREATE TABLE cart_items (
+CREATE TABLE IF NOT EXISTS cart_items (
 	id SERIAL PRIMARY KEY,
 	cart_id INTEGER UNIQUE NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
 	product_id INTEGER UNIQUE NOT NULL REFERENCES products(id) ON DELETE CASCADE,
@@ -9,6 +9,6 @@ CREATE TABLE cart_items (
 	-- UNIQUE(cart_id, product_id)
 );
 
-CREATE INDEX idx_cart_items_cart_id ON cart_items(cart_id);
-CREATE INDEX idx_cart_items_product_id ON cart_items(product_id);
-CREATE INDEX idx_cart_items_deleted_at ON cart_items(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_cart_items_cart_id ON cart_items(cart_id);
+CREATE INDEX IF NOT EXISTS idx_cart_items_product_id ON cart_items(product_id);
+CREATE INDEX IF NOT EXISTS idx_cart_items_deleted_at ON cart_items(deleted_at);

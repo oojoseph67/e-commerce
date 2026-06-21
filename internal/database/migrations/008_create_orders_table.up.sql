@@ -1,6 +1,6 @@
-CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled')
+CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled');
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
 	id SERIAL PRIMARY KEY,
 	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	status order_status DEFAULT 'pending',
@@ -10,6 +10,6 @@ CREATE TABLE orders (
 	deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_orders_user_id ON orders(user_id);
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_deleted_at ON orders(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_deleted_at ON orders(deleted_at);

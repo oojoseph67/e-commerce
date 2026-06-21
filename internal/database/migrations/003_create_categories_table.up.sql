@@ -1,4 +1,4 @@
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	description TEXT NOT NULL,
@@ -8,5 +8,5 @@ CREATE TABLE categories (
 	deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_categories_is_active ON categories(is_active);
-CREATE INDEX idx_categories_deleted_at ON categories(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_categories_is_active ON categories(is_active);
+CREATE INDEX IF NOT EXISTS idx_categories_deleted_at ON categories(deleted_at);

@@ -1,4 +1,4 @@
-CREATE TABLE carts (
+CREATE TABLE IF NOT EXISTS carts (
 	id SERIAL PRIMARY KEY,
 	user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -6,5 +6,5 @@ CREATE TABLE carts (
 	deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_carts_user_id ON carts(user_id);
-CREATE INDEX idx_carts_deleted_at ON carts(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_carts_user_id ON carts(user_id);
+CREATE INDEX IF NOT EXISTS idx_carts_deleted_at ON carts(deleted_at);

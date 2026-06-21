@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/oojoseph67/ecommerce/internal/models"
 	"github.com/oojoseph67/ecommerce/internal/utils"
-	"github.com/oojoseph67/ecommerce/models"
 )
 
 func (s *Server) corsMiddleware() gin.HandlerFunc {

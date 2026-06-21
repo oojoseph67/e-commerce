@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -11,7 +12,7 @@ import (
 func New() zerolog.Logger {
 	zerolog.TimeFieldFormat = time.RFC1123
 
-	if os.Getenv("GIN_MODE") != "release" {
+	if os.Getenv("GIN_MODE") != gin.ReleaseMode {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC1123})
 	}
 

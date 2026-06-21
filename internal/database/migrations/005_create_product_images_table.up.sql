@@ -1,6 +1,6 @@
-CREATE TABLE product_images (
+CREATE TABLE IF NOT EXISTS product_images (
 	id SERIAL PRIMARY KEY,
-	product_id INTEGER NOT NULL REFERENCES proudcts(id) ON DELETE CASCADE,
+	product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
 	url VARCHAR(500) NOT NULL,
 	alt_text VARCHAR(255),
 	is_primary BOOLEAN DEFAULT false,
@@ -8,6 +8,6 @@ CREATE TABLE product_images (
 	deleted_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_product_images_product_id ON product_images(product_id);
-CREATE INDEX idx_product_images_is_primary ON product_images(is_primary);
-CREATE INDEX idx_product_images_deleted_at ON product_images(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id);
+CREATE INDEX IF NOT EXISTS idx_product_images_is_primary ON product_images(is_primary);
+CREATE INDEX IF NOT EXISTS idx_product_images_deleted_at ON product_images(deleted_at);
