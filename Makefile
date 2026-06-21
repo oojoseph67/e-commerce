@@ -1,4 +1,4 @@
-.PHONY: help build run dev lint migrate-up migrate-down
+.PHONY: help build run dev lint format migrate-up migrate-down migrate-force migrate-alter docker-up docker-down
 
 GOROOT=/opt/homebrew/opt/go/libexec
 export GOROOT
@@ -32,6 +32,9 @@ migrate-down: ## Run database migrations down
 
 migrate-force: ## Run database migration force
 	migrate -path ./internal/database/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" force 4
+
+migrate-alter: ## Create a new migration file (usage: make migrate-alter NAME=add_slug_to_products)
+	migrate create -ext sql -dir ./internal/database/migrations $(NAME)
 
 docker-up: ## Run docker up
 	docker compose -f docker/docker-compose.yml up -d
