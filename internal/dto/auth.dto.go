@@ -2,7 +2,7 @@ package dto
 
 // binding is gotten from go-gin
 
-type RegisterRequest struct {
+type SignupRequest struct {
 	Email     string `json:"email" binding:"required,email"`
 	Password  string `json:"password" binding:"required,min-8"`
 	FirstName string `json:"first_name" binding:"required"`
@@ -16,6 +16,10 @@ type LoginRequest struct {
 }
 
 type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+type LogoutRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 

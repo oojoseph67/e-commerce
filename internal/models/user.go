@@ -13,7 +13,7 @@ type User struct {
 	FirstName string         `json:"first_name" gorm:"not null"`
 	LastName  string         `json:"last_name" gorm:"not null"`
 	Phone     string         `json:"phone" gorm:"not null"`
-	IsActive  string         `json:"is_active" gorm:"default:true"`
+	IsActive  bool           `json:"is_active" gorm:"default:true"`
 	Role      UserRole       `json:"role" gorm:"default:customer"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`

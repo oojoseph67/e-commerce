@@ -75,7 +75,7 @@ func Load() (*Config, error) {
 
 	jwtSecret := getEnv("JWT_SECRET", "your_jwt_secret")
 	jwtExpiresIn, _ := time.ParseDuration(getEnv("JWT_EXPIRES_IN", "24h"))
-	refreshTokenExpires, _ := time.ParseDuration(getEnv("REFRESH_TOKEN_EXPIRES_IN", "24h"))
+	refreshTokenExpires, _ := time.ParseDuration(getEnv("REFRESH_TOKEN_EXPIRES_IN", "72h"))
 
 	awsRegion := getEnv("AWS_REGION", "your_jwt_secret")
 	awsAccessKeyId := getEnv("AWS_ACCESS_KEY_ID", "test")
@@ -84,7 +84,7 @@ func Load() (*Config, error) {
 	awsS3Endpoint := getEnv("AWS_S3_ENDPOINT", "http://localhost:9999")
 
 	uploadPath := getEnv("UPLOAD_PATH", "./uploads")
-	maxUploadSize, _ := strconv.ParseInt(getEnv("JWT_EXPIRES_IN", "24h"), 10, 64)
+	maxUploadSize, _ := strconv.ParseInt(getEnv("MAX_UPLOAD_SIZE", "10485760"), 10, 64)
 
 	return &Config{
 		Server: ServerConfig{

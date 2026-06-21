@@ -57,19 +57,19 @@ func GenerateTokenPair(config *config.JWTConfig, userId uint, email, role string
 }
 
 // Checks if accessToken or refreshToken is valid
-func ValidateToken(tokenString, secret string) (claims *Claims, isValid bool, err error) {
+func ValidateToken(tokenString, secret string) (claims *Claims, err error) {
 
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
 
 	if err != nil {
-		return nil, false, err
+		return nil, err
 	}
 
 	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims, true, nil
+		return claims, nil
 	}
 
-	return nil, false, errors.New("invalid token")
+	return nil, errors.New("invalid token")
 }

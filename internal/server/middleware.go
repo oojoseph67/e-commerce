@@ -42,7 +42,7 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 		}
 
 		jwt := tokenParts[1]
-		claims, _, err := utils.ValidateToken(jwt, s.config.JWT.Secret)
+		claims, err := utils.ValidateToken(jwt, s.config.JWT.Secret)
 		if err != nil {
 			utils.UnauthorizedResponse(ctx, "Invalid token", errors.New("invalid token"))
 			ctx.Abort()
