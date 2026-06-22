@@ -3,6 +3,8 @@ package server
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/config"
+	"github.com/oojoseph67/ecommerce/internal/handlers"
+	"github.com/oojoseph67/ecommerce/internal/services"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 )
@@ -22,7 +24,6 @@ func New(config *config.Config, db *gorm.DB, logger zerolog.Logger) *Server {
 }
 
 func (s *Server) SetupRoutes() *gin.Engine {
-
 	router := gin.New()
 
 	// middlewares
@@ -30,8 +31,22 @@ func (s *Server) SetupRoutes() *gin.Engine {
 	router.Use(gin.Recovery())
 	router.Use(s.corsMiddleware())
 
+	// services constructor
+	authService := services.NewAuthService(s.db, s.config, s.logger)
+
+	// handlers constructor
+	authHandler := handlers.NewAuthHandler(authService)
+
 	// routes
-	router.GET("/health", s.healthCheck)
+	router.GET("/health", handlers.HealthCheck)
+
+	auth := router.Group("/auth")
+	{
+		auth.POST("/signup", authHandler.Signup)
+		auth.POST("/login", authHandler.Login)
+		auth.POST("/refresh", authHandler.RefreshToken)
+		auth.POST("/logout", authHandler.Logout)
+	}
 
 	return router
 }
