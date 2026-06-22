@@ -8,7 +8,8 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/config"
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/models"
-	"github.com/oojoseph67/ecommerce/internal/utils"
+	jwtp "github.com/oojoseph67/ecommerce/internal/utils/jwt"
+	"github.com/oojoseph67/ecommerce/internal/utils/password"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 )
@@ -40,7 +41,7 @@ func (s *AuthService) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) 
 	}
 
 	// hash password
-	hashedPassword, err := utils.HashPassword(req.Password)
+	hashedPassword, err := password.HashPassword(req.Password)
 	if err != nil {
 		s.logger.Error().Err(err).Msg("failed to hash password")
 		return nil, errors.New("failed to process password")
@@ -90,7 +91,7 @@ func (s *AuthService) Login(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 		return nil, errors.New("incorrect email or password")
 	}
 
-	if !utils.ComparePassword(req.Password, user.Password) {
+	if !password.ComparePassword(req.Password, user.Password) {
 		s.logger.Warn().Uint("user_id", user.ID).Str("email", lowercaseEmail).Msg("login failed: incorrect password")
 		return nil, errors.New("incorrect email or password")
 	}
@@ -108,7 +109,7 @@ func (s *AuthService) Login(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 
 // RefreshToken exchanges a valid refresh token for a new auth pair.
 func (s *AuthService) RefreshToken(req *dto.RefreshTokenRequest) (*dto.AuthResponse, error) {
-	claims, err := utils.ValidateToken(req.RefreshToken, s.config.JWT.Secret)
+	claims, err := jwtp.ValidateToken(req.RefreshToken, s.config.JWT.Secret)
 	if err != nil {
 		s.logger.Warn().Msg("refresh token failed: invalid token")
 		return nil, errors.New("invalid refresh token")
@@ -161,7 +162,7 @@ func (s *AuthService) Logout(req *dto.LogoutRequest) error {
 }
 
 func (s *AuthService) generateAuthResponse(user *models.User) (*dto.AuthResponse, error) {
-	accessToken, refreshToken, err := utils.GenerateTokenPair(
+	accessToken, refreshToken, err := jwtp.GenerateTokenPair(
 		&s.config.JWT, user.ID, user.Email, string(user.Role),
 	)
 	if err != nil {

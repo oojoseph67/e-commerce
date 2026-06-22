@@ -7,7 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/models"
-	"github.com/oojoseph67/ecommerce/internal/utils"
+	jwtp "github.com/oojoseph67/ecommerce/internal/utils/jwt"
+	"github.com/oojoseph67/ecommerce/internal/utils/responses"
 )
 
 func (s *Server) corsMiddleware() gin.HandlerFunc {
@@ -29,22 +30,22 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 		authHeader := ctx.GetHeader("Authorization")
 
 		if authHeader == "" {
-			utils.UnauthorizedResponse(ctx, "Authorization header is required", errors.New("authorization header is required"))
+			responses.UnauthorizedResponse(ctx, "Authorization header is required", errors.New("authorization header is required"))
 			ctx.Abort()
 			return
 		}
 
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
-			utils.UnauthorizedResponse(ctx, "Invalid authorization header format", errors.New("invalid authorization header format"))
+			responses.UnauthorizedResponse(ctx, "Invalid authorization header format", errors.New("invalid authorization header format"))
 			ctx.Abort()
 			return
 		}
 
 		jwt := tokenParts[1]
-		claims, err := utils.ValidateToken(jwt, s.config.JWT.Secret)
+		claims, err := jwtp.ValidateToken(jwt, s.config.JWT.Secret)
 		if err != nil {
-			utils.UnauthorizedResponse(ctx, "Invalid token", errors.New("invalid token"))
+			responses.UnauthorizedResponse(ctx, "Invalid token", errors.New("invalid token"))
 			ctx.Abort()
 			return
 		}
@@ -61,13 +62,13 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		role, exists := ctx.Get("user_role")
 		if !exists {
-			utils.ForbiddenResponse(ctx, "Forbidden", errors.New("forbidden"))
+			responses.ForbiddenResponse(ctx, "Forbidden", errors.New("forbidden"))
 			ctx.Abort()
 			return
 		}
 
 		if role != string(models.UserRoleAdmin) {
-			utils.ForbiddenResponse(ctx, "Forbidden", errors.New("Forbidden"))
+			responses.ForbiddenResponse(ctx, "Forbidden", errors.New("Forbidden"))
 			ctx.Abort()
 			return
 		}
