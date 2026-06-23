@@ -9,6 +9,7 @@ import (
 )
 
 /**** CATEGORY SERVICES */
+
 func (s *Services) CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
 
 	// creating the model
@@ -112,7 +113,7 @@ func (s *Services) DeleteCategory(id string) error {
 	}
 
 	// delete category
-	if err := s.db.Where("id = ?", categoryModel.ID).Delete(categoryModel).Error; err != nil {
+	if err := s.db.Where("id = ?", categoryModel.ID).Delete(&categoryModel).Error; err != nil {
 		s.internalLogger("category").Warn().Str("category_id", id).Err(err).Msg("error deleting category")
 		return errors.New("error deleting category")
 	}
@@ -268,6 +269,28 @@ func (s *Services) UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto
 	product := s.convertToProductResponse(&productModel)
 
 	return product, nil
+}
+
+func (s *Services) DeleteProduct(id string) error {
+	// get products
+	// productModel, err := s.GetProduct(id)
+	// if err != nil {
+	// 	return err
+	// }
+
+	var productModel models.Product
+	err := s.db.Where("id = ?", id).First(&productModel).Error
+	if err != nil {
+		return errors.New("product not found")
+	}
+
+	// delete products
+	if err := s.db.Where("id = ?", productModel.ID).Delete(&productModel).Error; err != nil {
+		s.internalLogger("product").Warn().Str("product_id", id).Err(err).Msg("error deleting products")
+		return errors.New("error deleting product")
+	}
+
+	return nil
 }
 
 func (s *Services) convertToProductResponse(product *models.Product) *dto.ProductResponse {
