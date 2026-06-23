@@ -33,7 +33,7 @@ type UpdateProductRequest struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price" binding:"gt=0"`
 	Stock       int     `json:"stock" binding:"min=0"`
-	IsActive    bool    `json:"is_active"`
+	IsActive    *bool   `json:"is_active"`
 }
 
 type ProductResponse struct {

@@ -13,7 +13,7 @@ type Response struct {
 	Error   string `json:"error,omitempty"`
 }
 
-type PaginadedResponse struct {
+type PaginatedResponse struct {
 	Response Response
 	Meta     PaginationMeta `json:"meta"`
 }
@@ -42,7 +42,7 @@ func CreatedResponse(ctx *gin.Context, message string, data any) {
 }
 
 func PaginatedSuccessResponse(ctx *gin.Context, message string, data any, meta PaginationMeta) {
-	ctx.JSON(http.StatusOK, PaginadedResponse{
+	ctx.JSON(http.StatusOK, PaginatedResponse{
 		Response: Response{
 			Success: true,
 			Message: message,
