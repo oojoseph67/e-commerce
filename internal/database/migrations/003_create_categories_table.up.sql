@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS categories (
-	id SERIAL PRIMARY KEY,
+ 	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 	name VARCHAR(255) NOT NULL,
 	description TEXT NOT NULL,
 	is_active BOOLEAN DEFAULT true,

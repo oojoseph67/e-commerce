@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS product_images (
-	id SERIAL PRIMARY KEY,
-	product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
 	url VARCHAR(500) NOT NULL,
 	alt_text VARCHAR(255),
 	is_primary BOOLEAN DEFAULT false,

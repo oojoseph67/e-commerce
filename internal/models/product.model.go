@@ -7,7 +7,7 @@ import (
 )
 
 type Category struct {
-	ID          uint           `json:"id" gorm:"primaryKey"`
+	ID          string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	Name        string         `json:"name" gorm:"not null"`
 	Description string         `json:"description" gorm:"not null"`
 	IsActive    bool           `json:"is_active" gorm:"default:true"`
@@ -20,8 +20,8 @@ type Category struct {
 }
 
 type Product struct {
-	ID          uint           `json:"id" gorm:"primaryKey"`
-	CategoryID  uint           `json:"category_id" gorm:"not null"`
+	ID          string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	CategoryID  string         `json:"category_id" gorm:"not null;type:uuid"`
 	Name        string         `json:"name" gorm:"not null"`
 	Description string         `json:"description" gorm:"not null"`
 	Price       float64        `json:"price" gorm:"not null"`
@@ -40,8 +40,8 @@ type Product struct {
 }
 
 type ProductImage struct {
-	ID        uint           `json:"id" gorm:"primaryKey"`
-	ProductID uint           `json:"product_id" gorm:"not null"`
+	ID        string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	ProductID string         `json:"product_id" gorm:"not null;type:uuid"`
 	URL       string         `json:"url" gorm:"not null"`
 	AltText   string         `json:"alt_text"`
 	IsPrimary bool           `json:"is_primary" gorm:"default:false"`

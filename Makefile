@@ -30,8 +30,8 @@ migrate-up: ## Run database migrations up
 migrate-down: ## Run database migrations down
 	migrate -path ./internal/database/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" down
 
-migrate-force: ## Run database migration force
-	migrate -path ./internal/database/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" force 4
+migrate-force: ## Run database migration force (usage: make migrate-alter version=1)
+	migrate -path ./internal/database/migrations -database "postgresql://postgres:admin@localhost:5433/go-ecommerce?sslmode=disable" force $(VERSION)
 
 migrate-alter: ## Create a new migration file (usage: make migrate-alter NAME=add_slug_to_products)
 	migrate create -ext sql -dir ./internal/database/migrations $(NAME)

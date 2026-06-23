@@ -1,8 +1,8 @@
 CREATE TYPE order_status AS ENUM ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled');
 
 CREATE TABLE IF NOT EXISTS orders (
-	id SERIAL PRIMARY KEY,
-	user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	status order_status DEFAULT 'pending',
 	total_amount DECIMAL(10,2) NOT NULL,
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

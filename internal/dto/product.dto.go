@@ -12,14 +12,14 @@ type UpdateCategoryRequest struct {
 }
 
 type CategoryResponse struct {
-	ID          uint   `json:"id"`
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	IsActive    bool   `json:"is_active"`
 }
 
 type CreateProductRequest struct {
-	CategoryID  uint    `json:"category_id" binding:"required"`
+	CategoryID  string  `json:"category_id" binding:"required"`
 	Name        string  `json:"name" binding:"required"`
 	Description string  `json:"description" binding:"required"`
 	Price       float64 `json:"price" binding:"required,gt=0"`
@@ -28,7 +28,7 @@ type CreateProductRequest struct {
 }
 
 type UpdateProductRequest struct {
-	CategoryID  uint    `json:"category_id"`
+	CategoryID  string  `json:"category_id"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price" binding:"gt=0"`
@@ -37,8 +37,8 @@ type UpdateProductRequest struct {
 }
 
 type ProductResponse struct {
-	ID          uint                   `json:"id"`
-	CategoryID  uint                   `json:"category_id"`
+	ID          string                 `json:"id"`
+	CategoryID  string                 `json:"category_id"`
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	Price       float64                `json:"price"`
@@ -50,7 +50,7 @@ type ProductResponse struct {
 }
 
 type ProductImageResponse struct {
-	ID        uint   `json:"id"`
+	ID        string `json:"id"`
 	URL       string `json:"url"`
 	AltText   string `json:"alt_text"`
 	IsPrimary bool   `json:"is_primary"`

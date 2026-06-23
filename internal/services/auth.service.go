@@ -62,19 +62,19 @@ func (s *AuthService) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) 
 		return nil, errors.New("failed to create user")
 	}
 
-	s.logger.Info().Uint("user_id", user.ID).Str("email", lowercaseEmail).Msg("user created")
+	s.logger.Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user created")
 
 	// create cart
 	cart := models.Cart{
 		UserID: user.ID,
 	}
 	if err := s.db.Create(&cart).Error; err != nil {
-		s.logger.Warn().Err(err).Uint("user_id", user.ID).Msg("failed to create cart for new user")
+		s.logger.Warn().Err(err).Str("user_id", user.ID).Msg("failed to create cart for new user")
 	}
 
 	authResponse, err := s.generateAuthResponse(&user)
 	if err != nil {
-		s.logger.Error().Err(err).Uint("user_id", user.ID).Msg("failed to generate auth response after signup")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after signup")
 		return nil, err
 	}
 
@@ -92,15 +92,15 @@ func (s *AuthService) Login(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 	}
 
 	if !password.ComparePassword(req.Password, user.Password) {
-		s.logger.Warn().Uint("user_id", user.ID).Str("email", lowercaseEmail).Msg("login failed: incorrect password")
+		s.logger.Warn().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("login failed: incorrect password")
 		return nil, errors.New("incorrect email or password")
 	}
 
-	s.logger.Info().Uint("user_id", user.ID).Str("email", lowercaseEmail).Msg("user logged in")
+	s.logger.Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user logged in")
 
 	authResponse, err := s.generateAuthResponse(&user)
 	if err != nil {
-		s.logger.Error().Err(err).Uint("user_id", user.ID).Msg("failed to generate auth response after login")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after login")
 		return nil, err
 	}
 
@@ -118,28 +118,28 @@ func (s *AuthService) RefreshToken(req *dto.RefreshTokenRequest) (*dto.AuthRespo
 	var refreshToken models.RefreshToken
 	now := time.Now()
 	if err := s.db.Where("token = ? AND expires_at > ?", req.RefreshToken, now).First(&refreshToken).Error; err != nil {
-		s.logger.Warn().Uint("user_id", claims.UserID).Msg("refresh token failed: not found or expired")
+		s.logger.Warn().Str("user_id", claims.UserID).Msg("refresh token failed: not found or expired")
 		return nil, errors.New("refresh token not found or expired")
 	}
 
 	var user models.User
 	if err := s.db.Where("id = ?", claims.UserID).First(&user).Error; err != nil {
-		s.logger.Error().Err(err).Uint("user_id", claims.UserID).Msg("refresh token failed: user not found")
+		s.logger.Error().Err(err).Str("user_id", claims.UserID).Msg("refresh token failed: user not found")
 		return nil, errors.New("user not found")
 	}
 
 	// delete old refresh token
 	if err := s.db.Delete(&refreshToken).Error; err != nil {
-		s.logger.Warn().Err(err).Uint("user_id", user.ID).Msg("failed to delete old refresh token")
+		s.logger.Warn().Err(err).Str("user_id", user.ID).Msg("failed to delete old refresh token")
 	}
 
 	authResponse, err := s.generateAuthResponse(&user)
 	if err != nil {
-		s.logger.Error().Err(err).Uint("user_id", user.ID).Msg("failed to generate auth response during refresh")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response during refresh")
 		return nil, err
 	}
 
-	s.logger.Info().Uint("user_id", user.ID).Msg("token refreshed")
+	s.logger.Info().Str("user_id", user.ID).Msg("token refreshed")
 	return authResponse, nil
 }
 
@@ -166,7 +166,7 @@ func (s *AuthService) generateAuthResponse(user *models.User) (*dto.AuthResponse
 		&s.config.JWT, user.ID, user.Email, string(user.Role),
 	)
 	if err != nil {
-		s.logger.Error().Err(err).Uint("user_id", user.ID).Msg("failed to generate token pair")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to generate token pair")
 		return nil, errors.New("failed to generate tokens")
 	}
 
@@ -176,7 +176,7 @@ func (s *AuthService) generateAuthResponse(user *models.User) (*dto.AuthResponse
 		ExpiresAt: time.Now().Add(s.config.JWT.RefreshTokenExpires),
 	}
 	if err := s.db.Create(&refreshTokenModel).Error; err != nil {
-		s.logger.Error().Err(err).Uint("user_id", user.ID).Msg("failed to save refresh token")
+		s.logger.Error().Err(err).Str("user_id", user.ID).Msg("failed to save refresh token")
 	}
 
 	userModel := dto.UserResponse{

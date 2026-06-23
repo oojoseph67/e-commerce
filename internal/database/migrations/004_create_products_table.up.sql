@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS products (
-	id SERIAL PRIMARY KEY,
-	category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+	id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+	category_id UUID NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
 	name VARCHAR(255) NOT NULL,
 	description TEXT NOT NULL,
 	price DECIMAL(10,2) NOT NULL,

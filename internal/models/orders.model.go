@@ -7,8 +7,8 @@ import (
 )
 
 type Order struct {
-	ID          uint           `json:"id" gorm:"primaryKey"`
-	UserID      uint           `json:"user_id" gorm:"not null"`
+	ID          string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	UserID      string         `json:"user_id" gorm:"not null;type:uuid"`
 	Status      OrderStatus    `json:"status" gorm:"default:pending"`
 	TotalAmount float64        `json:"total_amount" gorm:"not null"`
 	CreatedAt   time.Time      `json:"created_at"`
@@ -31,9 +31,9 @@ const (
 )
 
 type OrderItem struct {
-	ID        uint           `json:"id" gorm:"primaryKey"`
-	OrderID   uint           `json:"order_id" gorm:"not null"`
-	ProductId uint           `json:"product_id" gorm:"not null"`
+	ID        string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	OrderID   string         `json:"order_id" gorm:"not null;type:uuid"`
+	ProductID string         `json:"product_id" gorm:"not null;type:uuid"`
 	Quantity  int            `json:"quantity" gorm:"not null"`
 	Price     float64        `json:"price" gorm:"not null"`
 	CreatedAt time.Time      `json:"created_at"`
@@ -46,8 +46,8 @@ type OrderItem struct {
 }
 
 type Cart struct {
-	ID        uint           `json:"id" gorm:"primaryKey"`
-	UserID    uint           `json:"user_id" gorm:"uniqueIndex;not null"`
+	ID        string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	UserID    string         `json:"user_id" gorm:"uniqueIndex;not null;type:uuid"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
@@ -57,9 +57,9 @@ type Cart struct {
 }
 
 type CartItem struct {
-	ID        uint           `json:"id" gorm:"primaryKey"`
-	CartID    uint           `json:"cart_id" gorm:"not null"`
-	ProductId uint           `json:"product_id" gorm:"not null"`
+	ID        string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	CartID    string         `json:"cart_id" gorm:"not null;type:uuid"`
+	ProductID string         `json:"product_id" gorm:"not null;type:uuid"`
 	Quantity  uint           `json:"quantity" gorm:"not null"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
