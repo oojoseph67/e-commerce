@@ -103,7 +103,6 @@ func phoneValidator(fl validator.FieldLevel) bool {
 
 	for _, t := range phone {
 		if !unicode.IsDigit(t) {
-		fmt.Println("false")
 			return false
 		}
 

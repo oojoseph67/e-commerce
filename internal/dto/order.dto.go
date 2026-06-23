@@ -2,7 +2,7 @@ package dto
 
 type AddToCartRequest struct {
 	ProductID string `json:"product_id" binding:"required"`
-	Quatity   int  `json:"quantity" binding:"required,min=1"`
+	Quatity   int    `json:"quantity" binding:"required,min=1"`
 }
 
 type UpdateCartItemRequest struct {

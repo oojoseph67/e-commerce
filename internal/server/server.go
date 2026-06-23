@@ -33,10 +33,10 @@ func (s *Server) SetupRoutes() *gin.Engine {
 	router.Use(middleware.CORS())
 
 	// services constructor
-	authService := services.NewAuthService(s.db, s.config, s.logger)
+	service := services.NewService(s.db, s.config, s.logger)
 
 	// handlers constructor
-	authHandler := handlers.NewAuthHandler(authService)
+	handler := handlers.NewHandler(service)
 
 	// routes
 	// API v1
@@ -48,10 +48,10 @@ func (s *Server) SetupRoutes() *gin.Engine {
 		// auth
 		auth := v1.Group("/auth")
 		{
-			auth.POST("/signup", authHandler.Signup)
-			auth.POST("/login", authHandler.Login)
-			auth.POST("/refresh", authHandler.RefreshToken)
-			auth.POST("/logout", authHandler.Logout)
+			auth.POST("/signup", handler.Signup)
+			auth.POST("/login", handler.Login)
+			auth.POST("/refresh", handler.RefreshToken)
+			auth.POST("/logout", handler.Logout)
 		}
 
 		// Example protected routes

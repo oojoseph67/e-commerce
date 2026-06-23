@@ -5,27 +5,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/dto"
-	"github.com/oojoseph67/ecommerce/internal/services"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
 	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
-type AuthHandler struct {
-	authService *services.AuthService
-}
-
-func NewAuthHandler(authService *services.AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
-}
-
-func (h *AuthHandler) Signup(ctx *gin.Context) {
+func (h *Handler) Signup(ctx *gin.Context) {
 	var req dto.SignupRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := h.authService.Signup(&req)
+	response, err := h.service.Signup(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Signup failed", err)
 		return
@@ -34,14 +25,14 @@ func (h *AuthHandler) Signup(ctx *gin.Context) {
 	responses.CreatedResponse(ctx, "Signup successful", response)
 }
 
-func (h *AuthHandler) Login(ctx *gin.Context) {
+func (h *Handler) Login(ctx *gin.Context) {
 	var req dto.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := h.authService.Login(&req)
+	response, err := h.service.Login(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Login failed", err)
 		return
@@ -50,14 +41,14 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 	responses.SuccessResponse(ctx, "Login successful", response)
 }
 
-func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
+func (h *Handler) RefreshToken(ctx *gin.Context) {
 	var req dto.RefreshTokenRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := h.authService.RefreshToken(&req)
+	response, err := h.service.RefreshToken(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Refresh token failed", err)
 		return
@@ -66,14 +57,14 @@ func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 	responses.SuccessResponse(ctx, "Token refreshed", response)
 }
 
-func (h *AuthHandler) Logout(ctx *gin.Context) {
+func (h *Handler) Logout(ctx *gin.Context) {
 	var req dto.LogoutRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	if err := h.authService.Logout(&req); err != nil {
+	if err := h.service.Logout(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Logout failed", err)
 		return
 	}
