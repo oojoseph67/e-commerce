@@ -109,6 +109,24 @@ func (s *Services) UpdateCategory(id string, req *dto.UpdateCategoryRequest) (*d
 	return category, nil
 }
 
+func (s *Services) DeleteCategory(id string) error {
+	// get category
+	var categoryModel *models.Category
+
+	categoryModel, err := s.getCategory(id, categoryModel)
+	if err != nil {
+		return err
+	}
+
+	// delete category
+	if err := s.db.Where("id = ?", categoryModel.ID).Delete(&categoryModel).Error; err != nil {
+		s.internalLogger("category").Warn().Str("category_id", id).Err(err).Msg("error deleting category")
+		return errors.New("error deleting category")
+	}
+
+	return nil
+}
+
 func (s *Services) getCategory(id string, categoryModel *models.Category) (*models.Category, error) {
 	if err := s.db.Where("id = ?", id).First(&categoryModel).Error; err != nil {
 		s.internalLogger("category").Warn().Str("category_id", id).Err(err).Msg("error finding category")
