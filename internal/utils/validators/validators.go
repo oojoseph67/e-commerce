@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -67,7 +68,7 @@ func FormatValidationError(err error) error {
 		case "password":
 			msg = "password must be 8-72 characters and contain uppercase, lowercase, number, and special character"
 		case "phone":
-			msg = "phone must be exactly 11 digits"
+			msg = "phone must be digits and exactly 11 digits"
 		case "min":
 			msg = fmt.Sprintf("%s must be at least %s characters", field, param)
 		case "max":
@@ -96,5 +97,17 @@ func passwordValidator(fl validator.FieldLevel) bool {
 // phoneValidator checks and make sure the phone number is == 11
 func phoneValidator(fl validator.FieldLevel) bool {
 	phone := fl.Field().String()
-	return len(phone) == 11
+	if len(phone) != 11 {
+		return false
+	}
+
+	for _, t := range phone {
+		if !unicode.IsDigit(t) {
+		fmt.Println("false")
+			return false
+		}
+
+	}
+
+	return true
 }
