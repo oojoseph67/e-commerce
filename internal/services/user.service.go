@@ -59,11 +59,3 @@ func (s *Services) UpdateProfile(userId string, req *dto.UpdateProfileRequest) (
 
 	return user, nil
 }
-
-func coalesce(newVal, oldVal string) string {
-
-	if newVal == "" {
-		return oldVal
-	}
-	return newVal
-}
