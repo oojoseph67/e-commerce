@@ -13,9 +13,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/config"
 	"github.com/oojoseph67/ecommerce/internal/database"
-	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/logger"
 	"github.com/oojoseph67/ecommerce/internal/server"
+	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
 func main() {
@@ -24,6 +24,10 @@ func main() {
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to load config")
+	}
+
+	if err := validators.RegisterValidators(); err != nil {
+		log.Fatal().Err(err).Msg("failed to register validators")
 	}
 
 	db, err := database.New(&configuration.Database)
@@ -43,10 +47,6 @@ func main() {
 	}()
 
 	gin.SetMode(configuration.Server.GinMode)
-
-	if err := dto.RegisterValidators(); err != nil {
-		log.Fatal().Err(err).Msg("failed to register validators")
-	}
 
 	srv := server.New(configuration, db, log)
 	router := srv.SetupRoutes()

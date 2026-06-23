@@ -7,6 +7,7 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/services"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
+	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
 type AuthHandler struct {
@@ -20,7 +21,7 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 func (h *AuthHandler) Signup(ctx *gin.Context) {
 	var req dto.SignupRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
@@ -36,7 +37,7 @@ func (h *AuthHandler) Signup(ctx *gin.Context) {
 func (h *AuthHandler) Login(ctx *gin.Context) {
 	var req dto.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
@@ -52,7 +53,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 	var req dto.RefreshTokenRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
@@ -68,7 +69,7 @@ func (h *AuthHandler) RefreshToken(ctx *gin.Context) {
 func (h *AuthHandler) Logout(ctx *gin.Context) {
 	var req dto.LogoutRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
