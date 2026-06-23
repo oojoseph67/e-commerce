@@ -34,8 +34,8 @@ func (s *AuthService) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) 
 	lowercaseEmail := strings.ToLower(req.Email)
 
 	// check if user already exists
-	var existingUser models.User
-	if err := s.db.Where("email = ?", lowercaseEmail).First(&existingUser).Error; err == nil {
+	var existingUserByEmail models.User
+	if err := s.db.Where("email = ?", lowercaseEmail).First(&existingUserByEmail).Error; err == nil {
 		s.logger.Warn().Str("email", lowercaseEmail).Msg("signup attempted for existing user")
 		return nil, errors.New("user already exists with this email")
 	}
@@ -128,7 +128,7 @@ func (s *AuthService) RefreshToken(req *dto.RefreshTokenRequest) (*dto.AuthRespo
 		return nil, errors.New("user not found")
 	}
 
-	// delete old refresh token
+	// delete(soft) old refresh token
 	if err := s.db.Delete(&refreshToken).Error; err != nil {
 		s.logger.Warn().Err(err).Str("user_id", user.ID).Msg("failed to delete old refresh token")
 	}
