@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/config"
 	"github.com/oojoseph67/ecommerce/internal/database"
+	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/logger"
 	"github.com/oojoseph67/ecommerce/internal/server"
 )
@@ -42,6 +43,10 @@ func main() {
 	}()
 
 	gin.SetMode(configuration.Server.GinMode)
+
+	if err := dto.RegisterValidators(); err != nil {
+		log.Fatal().Err(err).Msg("failed to register validators")
+	}
 
 	srv := server.New(configuration, db, log)
 	router := srv.SetupRoutes()
