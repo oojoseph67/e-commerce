@@ -32,6 +32,8 @@ func (s *Server) SetupRoutes() *gin.Engine {
 	router.Use(gin.Recovery())
 	router.Use(middleware.CORS())
 
+	authMiddleware := middleware.Auth(s.config.JWT.Secret)
+
 	// services constructor
 	service := services.NewService(s.db, s.config, s.logger)
 
@@ -52,6 +54,13 @@ func (s *Server) SetupRoutes() *gin.Engine {
 			auth.POST("/login", handler.Login)
 			auth.POST("/refresh", handler.RefreshToken)
 			auth.POST("/logout", handler.Logout)
+		}
+
+		// user
+		user := v1.Group("/user")
+		{
+			user.GET("/me", authMiddleware, handler.Me)
+			user.PATCH("/update", authMiddleware, handler.UpdateProfile)
 		}
 
 		// Example protected routes

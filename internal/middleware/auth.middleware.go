@@ -10,6 +10,12 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
 )
 
+const (
+	UserIdAuthKey    string = "user_id"
+	UserEmailAuthKey string = "user_email"
+	UserRoleAuthKey  string = "user_role"
+)
+
 // Auth validates JWT tokens and sets user context.
 func Auth(secret string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -34,9 +40,9 @@ func Auth(secret string) gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("user_id", claims.UserID)
-		ctx.Set("user_email", claims.Email)
-		ctx.Set("user_role", claims.Role)
+		ctx.Set(UserIdAuthKey, claims.UserID)
+		ctx.Set(UserEmailAuthKey, claims.Email)
+		ctx.Set(UserRoleAuthKey, claims.Role)
 
 		ctx.Next()
 	}

@@ -1,0 +1,50 @@
+package handlers
+
+import (
+	"errors"
+	_ "net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/oojoseph67/ecommerce/internal/dto"
+	"github.com/oojoseph67/ecommerce/internal/middleware"
+	"github.com/oojoseph67/ecommerce/internal/utils/responses"
+)
+
+func (h *Handler) Me(ctx *gin.Context) {
+	userId := ctx.GetString(middleware.UserIdAuthKey)
+	if userId == "" {
+		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+		return
+	}
+
+	profile, err := h.service.GetUserProfile(userId)
+	if err != nil {
+		responses.NotFoundResponse(ctx, "User not found", err)
+		return
+	}
+
+	responses.SuccessResponse(ctx, "Profile retrieved successfully", profile)
+}
+
+func (h *Handler) UpdateProfile(ctx *gin.Context) {
+	userId := ctx.GetString(middleware.UserIdAuthKey)
+	var req *dto.UpdateProfileRequest
+
+	if userId == "" {
+		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+		return
+	}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		return
+	}
+
+	profile, err := h.service.UpdateProfile(userId, req)
+	if err != nil {
+		responses.NotFoundResponse(ctx, "Couldnt update profile", err)
+		return
+	}
+
+	responses.SuccessResponse(ctx, "Profile updated successfully", profile)
+}
