@@ -2,6 +2,12 @@ package dto
 
 // binding is gotten from go-gin
 
+type AdminSignupRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,password"`
+	Code     string `json:"code" binding:"required"`
+}
+
 type SignupRequest struct {
 	Email     string `json:"email" binding:"required,email"`
 	Password  string `json:"password" binding:"required,password"`

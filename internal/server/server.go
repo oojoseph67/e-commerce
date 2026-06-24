@@ -51,6 +51,8 @@ func (s *Server) SetupRoutes() *gin.Engine {
 		// auth
 		auth := v1.Group("/auth")
 		{
+			auth.POST("/admin/signup", handler.AdminSignup)
+			auth.POST("/admin/login", handler.AdminLogin)
 			auth.POST("/signup", handler.Signup)
 			auth.POST("/login", handler.Login)
 			auth.POST("/refresh", handler.RefreshToken)

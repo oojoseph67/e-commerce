@@ -14,6 +14,12 @@ type Config struct {
 	JWT      JWTConfig
 	AWS      AWSConfig
 	Upload   UploadConfig
+	Admin    AdminConfig
+}
+
+type AdminConfig struct {
+	DomainName string
+	AdminCode  string
 }
 
 type ServerConfig struct {
@@ -86,6 +92,9 @@ func Load() (*Config, error) {
 	uploadPath := getEnv("UPLOAD_PATH", "./uploads")
 	maxUploadSize, _ := strconv.ParseInt(getEnv("MAX_UPLOAD_SIZE", "10485760"), 10, 64)
 
+	domainName := getEnv("COMPANY_DOMAIN", "example.com")
+	adminCode := getEnv("ADMIN_CODE", "code")
+
 	return &Config{
 		Server: ServerConfig{
 			Port:    port,
@@ -114,6 +123,10 @@ func Load() (*Config, error) {
 		Upload: UploadConfig{
 			Path:        uploadPath,
 			MaxFileSize: maxUploadSize,
+		},
+		Admin: AdminConfig{
+			DomainName: domainName,
+			AdminCode:  adminCode,
 		},
 	}, nil
 

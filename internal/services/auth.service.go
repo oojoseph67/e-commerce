@@ -11,6 +11,73 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/utils/password"
 )
 
+// Admin Signup
+func (s *Services) AdminSignup(req *dto.AdminSignupRequest) (*dto.AuthResponse, error) {
+	adminConfig := s.config.Admin
+
+	lowercaseEmail := strings.ToLower(req.Email)
+
+	// check email is a company email
+	emailParts := strings.Split(lowercaseEmail, "@")
+
+	if emailParts[1] != adminConfig.DomainName {
+		s.internalLogger("auth:admin_signup").Warn().Str("email_domain_name", emailParts[1]).Msg("invalid email domain")
+		return nil, errors.New("invalid email")
+	}
+
+	if strings.ToLower(req.Code) != adminConfig.AdminCode {
+		s.internalLogger("auth:admin_signup").Warn().Str("admin_code", adminConfig.AdminCode).Msg("invalid admin code")
+		return nil, errors.New("invalid admin code")
+	}
+
+	// check if user already exists
+	var existingUserByEmail models.User
+	if err := s.db.Where("email = ?", lowercaseEmail).First(&existingUserByEmail).Error; err == nil {
+		s.internalLogger("auth:admin_signup").Warn().Str("email", lowercaseEmail).Msg("signup attempted for existing user")
+		return nil, errors.New("user already exists with this email")
+	}
+
+	// hash password
+	hashedPassword, err := password.HashPassword(req.Password)
+	if err != nil {
+		s.internalLogger("auth:admin_signup").Error().Err(err).Msg("failed to hash password")
+		return nil, errors.New("failed to process password")
+	}
+
+	// create user
+	user := models.User{
+		Email:     lowercaseEmail,
+		Password:  hashedPassword,
+		FirstName: "admin",
+		LastName:  "admin",
+		Phone:     "12345678900",
+		Role:      models.UserRoleAdmin,
+	}
+
+	if err := s.db.Create(&user).Error; err != nil {
+		s.internalLogger("auth:admin_signup").Error().Err(err).Str("email", lowercaseEmail).Msg("failed to create user")
+		return nil, errors.New("failed to create admin")
+	}
+
+	s.internalLogger("auth:admin_signup").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user created")
+
+	// create cart
+	cart := models.Cart{
+		UserID: user.ID,
+	}
+	if err := s.db.Create(&cart).Error; err != nil {
+		s.internalLogger("auth:admin_signup").Warn().Err(err).Str("user_id", user.ID).Msg("failed to create cart for new user")
+	}
+
+	authResponse, err := s.generateAuthResponse(&user)
+	if err != nil {
+		s.internalLogger("auth:admin_signup").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after signup")
+		return nil, err
+	}
+
+	return authResponse, nil
+}
+
 // Signup registers a new user.
 func (s *Services) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) {
 	lowercaseEmail := strings.ToLower(req.Email)
@@ -71,6 +138,36 @@ func (s *Services) Login(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 	if err := s.db.Where("email = ? AND is_active = ?", lowercaseEmail, true).First(&user).Error; err != nil {
 		s.internalLogger("auth").Warn().Str("email", lowercaseEmail).Msg("login failed: user not found or inactive")
 		return nil, errors.New("incorrect email or password")
+	}
+
+	if !password.ComparePassword(req.Password, user.Password) {
+		s.internalLogger("auth").Warn().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("login failed: incorrect password")
+		return nil, errors.New("incorrect email or password")
+	}
+
+	s.internalLogger("auth").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user logged in")
+
+	authResponse, err := s.generateAuthResponse(&user)
+	if err != nil {
+		s.internalLogger("auth").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after login")
+		return nil, err
+	}
+
+	return authResponse, nil
+}
+
+// Admin Login
+func (s *Services) AdminLogin(req *dto.LoginRequest) (*dto.AuthResponse, error) {
+	lowercaseEmail := strings.ToLower(req.Email)
+
+	var user models.User
+	if err := s.db.Where("email = ? AND is_active = ?", lowercaseEmail, true).First(&user).Error; err != nil {
+		s.internalLogger("auth").Warn().Str("email", lowercaseEmail).Msg("login failed: user not found or inactive")
+		return nil, errors.New("incorrect email or password")
+	}
+
+	if user.Role != models.UserRoleAdmin {
+		return nil, errors.New("admin route")
 	}
 
 	if !password.ComparePassword(req.Password, user.Password) {

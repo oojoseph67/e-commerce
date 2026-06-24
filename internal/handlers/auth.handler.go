@@ -9,6 +9,38 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
+func (h *Handler) AdminSignup(ctx *gin.Context) {
+	var req dto.AdminSignupRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
+		return
+	}
+
+	response, err := h.service.AdminSignup(&req)
+	if err != nil {
+		responses.BadRequestResponse(ctx, "Signup failed", err)
+		return
+	}
+
+	responses.CreatedResponse(ctx, "Signup successful", response)
+}
+
+func (h *Handler) AdminLogin(ctx *gin.Context) {
+	var req dto.LoginRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
+		return
+	}
+
+	response, err := h.service.AdminLogin(&req)
+	if err != nil {
+		responses.BadRequestResponse(ctx, "Login failed", err)
+		return
+	}
+
+	responses.SuccessResponse(ctx, "Login successful", response)
+}
+
 func (h *Handler) Signup(ctx *gin.Context) {
 	var req dto.SignupRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
