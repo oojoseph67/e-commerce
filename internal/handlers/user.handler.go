@@ -42,7 +42,7 @@ func (h *Handler) UpdateProfile(ctx *gin.Context) {
 
 	profile, err := h.service.UpdateProfile(userId, req)
 	if err != nil {
-		responses.NotFoundResponse(ctx, "Couldnt update profile", err)
+		responses.InternalServerResponse(ctx, "Couldnt update profile", err)
 		return
 	}
 
