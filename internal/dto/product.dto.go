@@ -31,8 +31,8 @@ type UpdateProductRequest struct {
 	CategoryID  string  `json:"category_id"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
-	Price       float64 `json:"price" binding:"gt=0"`
-	Stock       int     `json:"stock" binding:"min=0"`
+	Price       float64 `json:"price" binding:"omitempty,gt=0"`
+	Stock       int     `json:"stock" binding:"omitempty,min=0"`
 	IsActive    *bool   `json:"is_active"`
 }
 

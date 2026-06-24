@@ -33,12 +33,13 @@ func coalesce[T comparable](newVal, oldVal T) T {
 	return newVal
 }
 
-// func coalescePtr[T any](newVal *T, oldVal T) T {
-//     if newVal == nil {
-//         return oldVal
-//     }
-//     return *newVal
-// }
+// use when checking for bool
+func coalescePtr[T any](newVal *T, oldVal T) T {
+    if newVal == nil {
+        return oldVal
+    }
+    return *newVal
+}
 
 // func coalesce(newVal, oldVal string) string {
 // 	if newVal == "" {

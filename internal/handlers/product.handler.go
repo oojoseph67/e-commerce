@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	_ "fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -147,7 +148,7 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 
 	category, err := h.service.UpdateProduct(id, req)
 	if err != nil {
-		responses.InternalServerResponse(ctx, "Couldnt update productt", err)
+		responses.InternalServerResponse(ctx, "Couldnt update product", err)
 		return
 	}
 

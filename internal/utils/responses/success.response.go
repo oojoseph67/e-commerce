@@ -14,7 +14,7 @@ type Response struct {
 }
 
 type PaginatedResponse struct {
-	Response Response
+	Response Response       `json:"response"`
 	Meta     PaginationMeta `json:"meta"`
 }
 

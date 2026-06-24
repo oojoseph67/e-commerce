@@ -6,6 +6,7 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/models"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
+	"gorm.io/gorm"
 )
 
 /**** CATEGORY SERVICES */
@@ -113,9 +114,24 @@ func (s *Services) DeleteCategory(id string) error {
 	}
 
 	// delete category
-	if err := s.db.Where("id = ?", categoryModel.ID).Delete(&categoryModel).Error; err != nil {
+	// if err := s.db.Where("id = ?", categoryModel.ID).Delete(&categoryModel).Error; err != nil {
+	// 	s.internalLogger("category:delete_category").Warn().Str("category_id", id).Err(err).Msg("error deleting category")
+	// 	return errors.New("error deleting category")
+	// }
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&categoryModel).Update("is_active", false).Error; err != nil {
+			s.internalLogger("category:delete_category").Warn().Str("category_id", id).Err(err).Msg("error deleting category")
+			return err
+		}
+		// return tx.Unscoped().Delete(&categoryModel).Error // Unscoped = hard delete
+
+		return tx.Delete(&categoryModel).Error
+	})
+
+	if err != nil {
 		s.internalLogger("category:delete_category").Warn().Str("category_id", id).Err(err).Msg("error deleting category")
-		return errors.New("error deleting category")
+		return err
 	}
 
 	return nil
@@ -141,13 +157,20 @@ func (s *Services) CreateProduct(req *dto.CreateProductRequest) (*dto.ProductRes
 		return nil, err
 	}
 
+	// check if sku exists
+	var existingSku models.Product
+	err = s.db.Where("sku = ?", req.SKU).First(&existingSku).Error
+	if err == nil {
+		return nil, errors.New("SKU value already exists")
+	}
+
 	// declare model
 	productModel := models.Product{
 		CategoryID:  categoryModel.ID,
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
-		Stock:       int(req.Price),
+		Stock:       int(req.Stock),
 		SKU:         req.SKU,
 	}
 
@@ -238,7 +261,7 @@ func (s *Services) UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto
 	productModel.Price = coalesce(req.Price, productModel.Price)
 	productModel.Stock = coalesce(req.Stock, productModel.Stock)
 
-	if productModel.CategoryID != "" {
+	if req.CategoryID != "" {
 
 		if _, err := s.getCategory(req.CategoryID); err != nil {
 			return nil, err
@@ -248,7 +271,7 @@ func (s *Services) UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto
 	}
 
 	if req.IsActive != nil {
-		productModel.IsActive = coalesce(*req.IsActive, productModel.IsActive)
+		productModel.IsActive = coalescePtr(req.IsActive, productModel.IsActive)
 	}
 
 	// update the data
@@ -285,9 +308,23 @@ func (s *Services) DeleteProduct(id string) error {
 	}
 
 	// delete products
-	if err := s.db.Where("id = ?", productModel.ID).Delete(&productModel).Error; err != nil {
+	// if err := s.db.Where("id = ?", productModel.ID).Delete(&productModel).Error; err != nil {
+	// 	return errors.New("error deleting product")
+	// }
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&productModel).Update("is_active", false).Error; err != nil {
+			s.internalLogger("product:delete_product").Warn().Str("product_id", id).Err(err).Msg("error deleting products")
+			return err
+		}
+		// return tx.Unscoped().Delete(&categoryModel).Error // Unscoped = hard delete
+
+		return tx.Delete(&productModel).Error
+	})
+
+	if err != nil {
 		s.internalLogger("product:delete_product").Warn().Str("product_id", id).Err(err).Msg("error deleting products")
-		return errors.New("error deleting product")
+		return err
 	}
 
 	return nil
