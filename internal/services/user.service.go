@@ -9,7 +9,7 @@ func (s *Services) GetUserProfile(userId string) (*dto.UserResponse, error) {
 	var userModel models.User
 
 	if err := s.db.Where("id = ?", userId).First(&userModel).Error; err != nil {
-		s.internalLogger("user").Warn().Str("user_id", userId).Err(err).Msg("user not found")
+		s.internalLogger("user:get_user_profile").Warn().Str("user_id", userId).Err(err).Msg("user not found")
 		return nil, err
 	}
 
@@ -31,7 +31,7 @@ func (s *Services) UpdateProfile(userId string, req *dto.UpdateProfileRequest) (
 
 	// find user
 	if err := s.db.Where("id = ?", userId).First(&userModel).Error; err != nil {
-		s.internalLogger("user").Warn().Str("user_id", userId).Err(err).Msg("user not found")
+		s.internalLogger("user:update_profile").Warn().Str("user_id", userId).Err(err).Msg("user not found")
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func (s *Services) UpdateProfile(userId string, req *dto.UpdateProfileRequest) (
 	}).Error
 
 	if err != nil {
-		s.internalLogger("user").Warn().Str("user_id", userId).Err(err).Msg("error updating user profile")
+		s.internalLogger("user:update_profile").Warn().Str("user_id", userId).Err(err).Msg("error updating user profile")
 		return nil, err
 	}
 

@@ -20,7 +20,7 @@ func (s *Services) CreateCategory(req *dto.CreateCategoryRequest) (*dto.Category
 
 	// db create
 	if err := s.db.Create(&categoryModel).Error; err != nil {
-		s.internalLogger("category").Warn().Err(err).Msg("error creating new category")
+		s.internalLogger("category:create").Warn().Err(err).Msg("error creating new category")
 		return nil, err
 	}
 
@@ -40,7 +40,7 @@ func (s *Services) GetCategories() ([]dto.CategoryResponse, error) {
 
 	// db search
 	if err := s.db.Where("is_active = ?", true).Find(&categoriesModel).Error; err != nil {
-		s.internalLogger("category").Warn().Err(err).Msg("error getting active categories")
+		s.internalLogger("category:get_categories").Warn().Err(err).Msg("error getting active categories")
 		return nil, err
 	}
 
@@ -91,7 +91,7 @@ func (s *Services) UpdateCategory(id string, req *dto.UpdateCategoryRequest) (*d
 	}).Error
 
 	if err != nil {
-		s.internalLogger("category").Warn().Str("category_id", id).Err(err).Msg("error updating category")
+		s.internalLogger("category:update_category").Warn().Str("category_id", id).Err(err).Msg("error updating category")
 		return nil, err
 	}
 
@@ -114,7 +114,7 @@ func (s *Services) DeleteCategory(id string) error {
 
 	// delete category
 	if err := s.db.Where("id = ?", categoryModel.ID).Delete(&categoryModel).Error; err != nil {
-		s.internalLogger("category").Warn().Str("category_id", id).Err(err).Msg("error deleting category")
+		s.internalLogger("category:delete_category").Warn().Str("category_id", id).Err(err).Msg("error deleting category")
 		return errors.New("error deleting category")
 	}
 
@@ -124,7 +124,7 @@ func (s *Services) DeleteCategory(id string) error {
 func (s *Services) getCategory(id string) (*models.Category, error) {
 	var categoryModel models.Category
 	if err := s.db.Where("id = ?", id).First(&categoryModel).Error; err != nil {
-		s.internalLogger("category").Warn().Str("category_id", id).Err(err).Msg("error finding category")
+		s.internalLogger("category:get_category").Warn().Str("category_id", id).Err(err).Msg("error finding category")
 		return nil, errors.New("category not found")
 	}
 
@@ -153,7 +153,7 @@ func (s *Services) CreateProduct(req *dto.CreateProductRequest) (*dto.ProductRes
 
 	// save model
 	if err := s.db.Create(&productModel).Error; err != nil {
-		s.internalLogger("product").Warn().Err(err).Msg("error creating product")
+		s.internalLogger("product:create").Warn().Err(err).Msg("error creating product")
 		return nil, err
 	}
 
@@ -190,7 +190,7 @@ func (s *Services) GetProducts(page, limit int) ([]dto.ProductResponse, *respons
 		Error
 
 	if err != nil {
-		s.internalLogger("category").Warn().Err(err).Msg("error getting products")
+		s.internalLogger("product:get_products").Warn().Err(err).Msg("error getting products")
 		return nil, nil, err
 	}
 
@@ -213,7 +213,7 @@ func (s *Services) GetProducts(page, limit int) ([]dto.ProductResponse, *respons
 func (s *Services) GetProduct(id string) (*dto.ProductResponse, error) {
 	var productModel models.Product
 	if err := s.db.Where("id = ?", id).First(&productModel).Error; err != nil {
-		s.internalLogger("product").Warn().Str("product_id", id).Err(err).Msg("error finding product")
+		s.internalLogger("product:get_product").Warn().Str("product_id", id).Err(err).Msg("error finding product")
 		return nil, errors.New("product not found")
 	}
 
@@ -262,7 +262,7 @@ func (s *Services) UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto
 	}).Error
 
 	if err != nil {
-		s.internalLogger("product").Warn().Str("product_id", id).Err(err).Msg("error updating product")
+		s.internalLogger("product:update_product").Warn().Str("product_id", id).Err(err).Msg("error updating product")
 		return nil, err
 	}
 
@@ -286,7 +286,7 @@ func (s *Services) DeleteProduct(id string) error {
 
 	// delete products
 	if err := s.db.Where("id = ?", productModel.ID).Delete(&productModel).Error; err != nil {
-		s.internalLogger("product").Warn().Str("product_id", id).Err(err).Msg("error deleting products")
+		s.internalLogger("product:delete_product").Warn().Str("product_id", id).Err(err).Msg("error deleting products")
 		return errors.New("error deleting product")
 	}
 

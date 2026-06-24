@@ -85,14 +85,14 @@ func (s *Services) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) {
 	// check if user already exists
 	var existingUserByEmail models.User
 	if err := s.db.Where("email = ?", lowercaseEmail).First(&existingUserByEmail).Error; err == nil {
-		s.internalLogger("auth").Warn().Str("email", lowercaseEmail).Msg("signup attempted for existing user")
+		s.internalLogger("auth:signup").Warn().Str("email", lowercaseEmail).Msg("signup attempted for existing user")
 		return nil, errors.New("user already exists with this email")
 	}
 
 	// hash password
 	hashedPassword, err := password.HashPassword(req.Password)
 	if err != nil {
-		s.internalLogger("auth").Error().Err(err).Msg("failed to hash password")
+		s.internalLogger("auth:signup").Error().Err(err).Msg("failed to hash password")
 		return nil, errors.New("failed to process password")
 	}
 
@@ -107,23 +107,23 @@ func (s *Services) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) {
 	}
 
 	if err := s.db.Create(&user).Error; err != nil {
-		s.internalLogger("auth").Error().Err(err).Str("email", lowercaseEmail).Msg("failed to create user")
+		s.internalLogger("auth:signup").Error().Err(err).Str("email", lowercaseEmail).Msg("failed to create user")
 		return nil, errors.New("failed to create user")
 	}
 
-	s.internalLogger("auth").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user created")
+	s.internalLogger("auth:signup").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user created")
 
 	// create cart
 	cart := models.Cart{
 		UserID: user.ID,
 	}
 	if err := s.db.Create(&cart).Error; err != nil {
-		s.internalLogger("auth").Warn().Err(err).Str("user_id", user.ID).Msg("failed to create cart for new user")
+		s.internalLogger("auth:signup").Warn().Err(err).Str("user_id", user.ID).Msg("failed to create cart for new user")
 	}
 
 	authResponse, err := s.generateAuthResponse(&user)
 	if err != nil {
-		s.internalLogger("auth").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after signup")
+		s.internalLogger("auth:signup").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after signup")
 		return nil, err
 	}
 
@@ -136,20 +136,20 @@ func (s *Services) Login(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 
 	var user models.User
 	if err := s.db.Where("email = ? AND is_active = ?", lowercaseEmail, true).First(&user).Error; err != nil {
-		s.internalLogger("auth").Warn().Str("email", lowercaseEmail).Msg("login failed: user not found or inactive")
+		s.internalLogger("auth:login").Warn().Str("email", lowercaseEmail).Msg("login failed: user not found or inactive")
 		return nil, errors.New("incorrect email or password")
 	}
 
 	if !password.ComparePassword(req.Password, user.Password) {
-		s.internalLogger("auth").Warn().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("login failed: incorrect password")
+		s.internalLogger("auth:login").Warn().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("login failed: incorrect password")
 		return nil, errors.New("incorrect email or password")
 	}
 
-	s.internalLogger("auth").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user logged in")
+	s.internalLogger("auth:login").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user logged in")
 
 	authResponse, err := s.generateAuthResponse(&user)
 	if err != nil {
-		s.internalLogger("auth").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after login")
+		s.internalLogger("auth:login").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after login")
 		return nil, err
 	}
 
@@ -162,7 +162,7 @@ func (s *Services) AdminLogin(req *dto.LoginRequest) (*dto.AuthResponse, error) 
 
 	var user models.User
 	if err := s.db.Where("email = ? AND is_active = ?", lowercaseEmail, true).First(&user).Error; err != nil {
-		s.internalLogger("auth").Warn().Str("email", lowercaseEmail).Msg("login failed: user not found or inactive")
+		s.internalLogger("auth:admin_login").Warn().Str("email", lowercaseEmail).Msg("login failed: user not found or inactive")
 		return nil, errors.New("incorrect email or password")
 	}
 
@@ -171,15 +171,15 @@ func (s *Services) AdminLogin(req *dto.LoginRequest) (*dto.AuthResponse, error) 
 	}
 
 	if !password.ComparePassword(req.Password, user.Password) {
-		s.internalLogger("auth").Warn().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("login failed: incorrect password")
+		s.internalLogger("auth:admin_login").Warn().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("login failed: incorrect password")
 		return nil, errors.New("incorrect email or password")
 	}
 
-	s.internalLogger("auth").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user logged in")
+	s.internalLogger("auth:admin_login").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user logged in")
 
 	authResponse, err := s.generateAuthResponse(&user)
 	if err != nil {
-		s.internalLogger("auth").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after login")
+		s.internalLogger("auth:admin_login").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after login")
 		return nil, err
 	}
 
@@ -190,35 +190,35 @@ func (s *Services) AdminLogin(req *dto.LoginRequest) (*dto.AuthResponse, error) 
 func (s *Services) RefreshToken(req *dto.RefreshTokenRequest) (*dto.AuthResponse, error) {
 	claims, err := jwtp.ValidateToken(req.RefreshToken, s.config.JWT.Secret)
 	if err != nil {
-		s.internalLogger("auth").Warn().Msg("refresh token failed: invalid token")
+		s.internalLogger("auth:refresh_token").Warn().Msg("refresh token failed: invalid token")
 		return nil, errors.New("invalid refresh token")
 	}
 
 	var refreshToken models.RefreshToken
 	now := time.Now()
 	if err := s.db.Where("token = ? AND expires_at > ?", req.RefreshToken, now).First(&refreshToken).Error; err != nil {
-		s.internalLogger("auth").Warn().Str("user_id", claims.UserID).Msg("refresh token failed: not found or expired")
+		s.internalLogger("auth:refresh_token").Warn().Str("user_id", claims.UserID).Msg("refresh token failed: not found or expired")
 		return nil, errors.New("refresh token not found or expired")
 	}
 
 	var user models.User
 	if err := s.db.Where("id = ?", claims.UserID).First(&user).Error; err != nil {
-		s.internalLogger("auth").Error().Err(err).Str("user_id", claims.UserID).Msg("refresh token failed: user not found")
+		s.internalLogger("auth:refresh_token").Error().Err(err).Str("user_id", claims.UserID).Msg("refresh token failed: user not found")
 		return nil, errors.New("user not found")
 	}
 
 	// delete(soft) old refresh token
 	if err := s.db.Delete(&refreshToken).Error; err != nil {
-		s.internalLogger("auth").Warn().Err(err).Str("user_id", user.ID).Msg("failed to delete old refresh token")
+		s.internalLogger("auth:refresh_token").Warn().Err(err).Str("user_id", user.ID).Msg("failed to delete old refresh token")
 	}
 
 	authResponse, err := s.generateAuthResponse(&user)
 	if err != nil {
-		s.internalLogger("auth").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response during refresh")
+		s.internalLogger("auth:refresh_token").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response during refresh")
 		return nil, err
 	}
 
-	s.internalLogger("auth").Info().Str("user_id", user.ID).Msg("token refreshed")
+	s.internalLogger("auth:refresh_token").Info().Str("user_id", user.ID).Msg("token refreshed")
 	return authResponse, nil
 }
 
@@ -227,14 +227,14 @@ func (s *Services) Logout(req *dto.LogoutRequest) error {
 	var refreshToken models.RefreshToken
 	result := s.db.Where("token = ?", req.RefreshToken).Delete(&refreshToken)
 	if result.Error != nil {
-		s.internalLogger("auth").Error().Err(result.Error).Msg("failed to delete refresh token on logout")
+		s.internalLogger("auth:logout").Error().Err(result.Error).Msg("failed to delete refresh token on logout")
 		return result.Error
 	}
 
 	if result.RowsAffected == 0 {
-		s.internalLogger("auth").Warn().Msg("logout attempted with unknown refresh token")
+		s.internalLogger("auth:logout").Warn().Msg("logout attempted with unknown refresh token")
 	} else {
-		s.internalLogger("auth").Info().Msg("user logged out")
+		s.internalLogger("auth:logout").Info().Msg("user logged out")
 	}
 
 	return nil
@@ -245,7 +245,7 @@ func (s *Services) generateAuthResponse(user *models.User) (*dto.AuthResponse, e
 		&s.config.JWT, user.ID, user.Email, string(user.Role),
 	)
 	if err != nil {
-		s.internalLogger("auth").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate token pair")
+		s.internalLogger("auth:generate_auth_response").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate token pair")
 		return nil, errors.New("failed to generate tokens")
 	}
 
@@ -255,7 +255,7 @@ func (s *Services) generateAuthResponse(user *models.User) (*dto.AuthResponse, e
 		ExpiresAt: time.Now().Add(s.config.JWT.RefreshTokenExpires),
 	}
 	if err := s.db.Create(&refreshTokenModel).Error; err != nil {
-		s.internalLogger("auth").Error().Err(err).Str("user_id", user.ID).Msg("failed to save refresh token")
+		s.internalLogger("auth:generate_auth_response").Error().Err(err).Str("user_id", user.ID).Msg("failed to save refresh token")
 	}
 
 	userModel := dto.UserResponse{
