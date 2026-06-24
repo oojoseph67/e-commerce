@@ -8,6 +8,7 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/middleware"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
+	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
 func (h *Handler) Me(ctx *gin.Context) {
@@ -36,7 +37,7 @@ func (h *Handler) UpdateProfile(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 

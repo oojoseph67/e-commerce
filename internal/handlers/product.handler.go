@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
+	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
 /**** CATEGORY HANDLER */
@@ -15,7 +16,7 @@ func (h *Handler) CreateCategory(ctx *gin.Context) {
 	var req *dto.CreateCategoryRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
@@ -50,7 +51,7 @@ func (h *Handler) UpdateCategory(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
@@ -84,7 +85,7 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 	var req *dto.CreateProductRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
@@ -140,7 +141,7 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		responses.BadRequestResponse(ctx, "Invalid request data", err)
+		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
