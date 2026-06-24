@@ -101,8 +101,8 @@ func (h *Handler) GetProducts(ctx *gin.Context) {
 	// page := ctx.Query("page")
 	// limit := ctx.Query("limit")
 
-	page, err := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-	limit, err := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 
 	products, pagination, err := h.service.GetProducts(page, limit)
 	if err != nil {

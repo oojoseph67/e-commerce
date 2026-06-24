@@ -51,7 +51,7 @@ func Auth(secret string) gin.HandlerFunc {
 // Admin restricts access to admin users only.
 func Admin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		role, exists := ctx.Get("user_role")
+		role, exists := ctx.Get(UserRoleAuthKey)
 		if !exists {
 			responses.ForbiddenResponse(ctx, "Forbidden", errors.New("missing user role"))
 			ctx.Abort()

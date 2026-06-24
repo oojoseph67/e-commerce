@@ -33,6 +33,7 @@ func (s *Server) SetupRoutes() *gin.Engine {
 	router.Use(middleware.CORS())
 
 	authMiddleware := middleware.Auth(s.config.JWT.Secret)
+	adminMiddleware := middleware.Admin()
 
 	// services constructor
 	service := services.NewService(s.db, s.config, s.logger)
@@ -61,6 +62,25 @@ func (s *Server) SetupRoutes() *gin.Engine {
 		{
 			user.GET("/me", authMiddleware, handler.Me)
 			user.PATCH("/update", authMiddleware, handler.UpdateProfile)
+		}
+
+		// categories
+		categories := v1.Group("/categories")
+		{
+			categories.GET("/", authMiddleware, handler.GetCategories)
+			categories.POST("/", authMiddleware, adminMiddleware, handler.CreateCategory)
+			categories.PUT("/:id", authMiddleware, adminMiddleware, handler.UpdateCategory)
+			categories.DELETE("/:id", authMiddleware, adminMiddleware, handler.DeleteCategory)
+		}
+
+		// product
+		products := v1.Group("/products")
+		{
+			products.GET("/", authMiddleware, handler.GetProducts)
+			products.GET("/:id", authMiddleware, handler.GetProduct)
+			products.POST("/", authMiddleware, adminMiddleware, handler.CreateProduct)
+			products.PUT("/:id", authMiddleware, adminMiddleware, handler.UpdateProduct)
+			products.DELETE("/:id", authMiddleware, adminMiddleware, handler.DeleteProduct)
 		}
 
 		// Example protected routes
