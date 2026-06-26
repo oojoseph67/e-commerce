@@ -42,7 +42,11 @@ func (up *LocalUploadProvider) UploadFile(file *multipart.FileHeader, path strin
 		up.logger.Err(err).Msg("couldnt read file")
 		return "", "", err
 	}
-	defer src.Close()
+	defer func() {
+		if cerr := src.Close(); cerr != nil {
+			up.logger.Warn().Err(cerr).Msg("failed to close source file")
+		}
+	}()
 
 	// create destination
 	dst, err := os.Create(fullPath)
@@ -50,7 +54,12 @@ func (up *LocalUploadProvider) UploadFile(file *multipart.FileHeader, path strin
 		up.logger.Err(err).Msg("couldnt copy file")
 		return "", "", err
 	}
-	defer dst.Close()
+	defer func() {
+		if cerr := dst.Close(); cerr != nil && err == nil {
+			err = cerr
+			up.logger.Warn().Err(cerr).Msg("failed to close destination file")
+		}
+	}()
 
 	// read from source to destination
 	if _, err := dst.ReadFrom(src); err != nil {
