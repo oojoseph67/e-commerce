@@ -94,6 +94,7 @@ func (s *Server) SetupRoutes() *gin.Engine {
 			products.PUT("/:id", authMiddleware, adminMiddleware, handler.UpdateProduct)
 			products.DELETE("/:id", authMiddleware, adminMiddleware, handler.DeleteProduct)
 			products.POST("/:id/upload", authMiddleware, adminMiddleware, handler.UploadProductImage)
+			products.DELETE("/:id/upload", authMiddleware, adminMiddleware, handler.DeleteProductImage)
 		}
 
 		// Example protected routes

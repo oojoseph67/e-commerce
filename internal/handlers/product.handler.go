@@ -133,3 +133,17 @@ func (h *Handler) UploadProductImage(ctx *gin.Context) {
 
 	responses.SuccessResponse(ctx, "Product image added successfully", nil)
 }
+
+func (h *Handler) DeleteProductImage(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" {
+		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	}
+
+	if err := h.productService.DeleteProductImage(id); err != nil {
+		responses.InternalServerResponse(ctx, "Couldnt delete product image", err)
+		return
+	}
+
+	responses.SuccessResponse(ctx, "Product image deleted successful", nil)
+}

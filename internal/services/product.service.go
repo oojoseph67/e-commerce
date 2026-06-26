@@ -216,6 +216,11 @@ func (s *ProductService) AddProductImage(productId string, url, altText string) 
 	return nil
 }
 
+func (s *ProductService) DeleteProductImage(productId string) error {
+	var productImageModel models.ProductImage
+	return s.db.Unscoped().Where("id = ?", productId).Delete(&productImageModel).Error
+}
+
 func (s *ProductService) convertToProductResponse(product *models.Product) *dto.ProductResponse {
 
 	images := make([]dto.ProductImageResponse, len(product.Images))

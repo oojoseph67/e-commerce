@@ -31,6 +31,7 @@ type ProductServicer interface {
 	UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto.ProductResponse, error)
 	DeleteProduct(id string) error
 	AddProductImage(productId string, url, altText string) error
+	DeleteProductImage(imageId string) error
 }
 
 type CategoryServicer interface {
