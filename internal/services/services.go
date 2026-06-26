@@ -2,6 +2,8 @@ package services
 
 import (
 	"github.com/oojoseph67/ecommerce/internal/config"
+	"github.com/oojoseph67/ecommerce/internal/providers"
+	"github.com/oojoseph67/ecommerce/internal/utils/interfaces"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 )
@@ -32,11 +34,17 @@ type CategoryService struct {
 	BaseService
 }
 
+type UploadService struct {
+	BaseService
+	provider interfaces.UploadProvider
+}
+
 type Services struct {
 	AuthService     *AuthService
 	UserService     *UserService
 	ProductService  *ProductService
 	CategoryService *CategoryService
+	UploadService   *UploadService
 }
 
 func (s *BaseService) internalLogger(service string) *zerolog.Logger {
@@ -70,6 +78,8 @@ func NewService(db *gorm.DB, cfg *config.Config, logger zerolog.Logger) *Service
 
 	categoryService := &CategoryService{BaseService: base}
 
+	uploadProvider := providers.NewLocalUploadProvider(cfg.Upload.Path, *base.internalLogger("upload"))
+
 	return &Services{
 		AuthService: &AuthService{BaseService: base},
 		UserService: &UserService{BaseService: base},
@@ -78,6 +88,14 @@ func NewService(db *gorm.DB, cfg *config.Config, logger zerolog.Logger) *Service
 			categoryService: *categoryService,
 		},
 		CategoryService: categoryService,
+		UploadService:   NewUploadService(uploadProvider, base),
+	}
+}
+
+func NewUploadService(provider interfaces.UploadProvider, base BaseService) *UploadService {
+	return &UploadService{
+		provider:    provider,
+		BaseService: base,
 	}
 }
 

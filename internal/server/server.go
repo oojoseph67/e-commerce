@@ -44,9 +44,14 @@ func (s *Server) SetupRoutes() *gin.Engine {
 		service.UserService,
 		service.ProductService,
 		service.CategoryService,
+		service.UploadService,
 	)
 
-	// routes
+	// ROUTES
+
+	// upload
+	router.Static("/uploads", "./uploads")
+
 	// API v1
 	v1 := router.Group("/api/v1")
 	{
@@ -88,6 +93,7 @@ func (s *Server) SetupRoutes() *gin.Engine {
 			products.POST("/", authMiddleware, adminMiddleware, handler.CreateProduct)
 			products.PUT("/:id", authMiddleware, adminMiddleware, handler.UpdateProduct)
 			products.DELETE("/:id", authMiddleware, adminMiddleware, handler.DeleteProduct)
+			products.POST("/:id/upload", authMiddleware, adminMiddleware, handler.UploadProductImage)
 		}
 
 		// Example protected routes

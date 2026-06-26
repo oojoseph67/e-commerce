@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	_ "fmt"
 	"strconv"
 
@@ -49,6 +50,7 @@ func (h *Handler) GetProduct(ctx *gin.Context) {
 
 	if id == "" {
 		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+		return
 	}
 
 	product, err := h.productService.GetProduct(id)
@@ -68,6 +70,7 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 
 	if id == "" {
 		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+		return
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -86,7 +89,6 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 
 func (h *Handler) DeleteProduct(ctx *gin.Context) {
 	id := ctx.Param("id")
-
 	if id == "" {
 		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
 	}
@@ -97,4 +99,37 @@ func (h *Handler) DeleteProduct(ctx *gin.Context) {
 	}
 
 	responses.SuccessResponse(ctx, "Product deleted successful", nil)
+}
+
+func (h *Handler) UploadProductImage(ctx *gin.Context) {
+	id := ctx.Param("id")
+	if id == "" || id == ":id" {
+		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+		return
+	}
+
+	fmt.Println("id:", id)
+	fmt.Println("Content-Type header:", ctx.GetHeader("Content-Type"))
+
+	file, err := ctx.FormFile("productImage")
+	if err != nil {
+		responses.BadRequestResponse(ctx, "No image file uploaded", err)
+		return
+	}
+
+	url, altText, err := h.uploadService.UploadProductImage(id, file)
+	if err != nil {
+		responses.InternalServerResponse(ctx, "Couldnt upload image", err)
+		return
+	}
+
+	fmt.Println(url, altText)
+
+	err = h.productService.AddProductImage(id, url, altText)
+	if err != nil {
+		responses.InternalServerResponse(ctx, "Couldnt add image to product", err)
+		return
+	}
+
+	responses.SuccessResponse(ctx, "Product image added successfully", nil)
 }

@@ -190,6 +190,32 @@ func (s *ProductService) DeleteProduct(id string) error {
 	return nil
 }
 
+func (s *ProductService) AddProductImage(productId string, url, altText string) error {
+
+	var productModel models.Product
+
+	if err := s.db.Preload("Images").Where("id = ? AND is_active = ?", productId, true).First(&productModel).Error; err != nil {
+		s.internalLogger("product:add_product_image").Warn().Err(err).Msg("error finding product")
+		return errors.New("product not found or is not active")
+	}
+
+	isPrimary := len(productModel.Images) == 0
+
+	productImageModel := models.ProductImage{
+		ProductID: productModel.ID,
+		URL:       url,
+		AltText:   altText,
+		IsPrimary: isPrimary,
+	}
+
+	if err := s.db.Create(&productImageModel).Error; err != nil {
+		s.internalLogger("product:add_product_image").Warn().Err(err).Msg("error adding product image")
+		return err
+	}
+
+	return nil
+}
+
 func (s *ProductService) convertToProductResponse(product *models.Product) *dto.ProductResponse {
 
 	images := make([]dto.ProductImageResponse, len(product.Images))

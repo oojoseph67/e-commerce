@@ -6,28 +6,16 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
-
-	"github.com/oojoseph67/ecommerce/internal/utils/interfaces"
 )
 
-type UploadService struct {
-	provider interfaces.UploadProvider
-}
-
-func NewUploadService(provider interfaces.UploadProvider) *UploadService {
-	return &UploadService{
-		provider: provider,
-	}
-}
-
-func (s *UploadService) UploadProductImage(productId uint, file *multipart.FileHeader) (string, error) {
+func (s *UploadService) UploadProductImage(productId string, file *multipart.FileHeader) (url, altText string, err error) {
 
 	extension := strings.ToLower(filepath.Ext(file.Filename))
 	if !isValidImageExtension(extension) {
-		return "", fmt.Errorf("invalid file type: %s", extension)
+		return "", "", fmt.Errorf("invalid file type: %s", extension)
 	}
 
-	uploadPath := fmt.Sprintf("products/%d/%s", productId, file.Filename)
+	uploadPath := fmt.Sprintf("products/%s/%s", productId, file.Filename)
 
 	return s.provider.UploadFile(file, uploadPath)
 }

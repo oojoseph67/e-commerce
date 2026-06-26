@@ -1,6 +1,8 @@
 package services
 
 import (
+	"mime/multipart"
+
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
 )
@@ -28,6 +30,7 @@ type ProductServicer interface {
 	GetProduct(id string) (*dto.ProductResponse, error)
 	UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto.ProductResponse, error)
 	DeleteProduct(id string) error
+	AddProductImage(productId string, url, altText string) error
 }
 
 type CategoryServicer interface {
@@ -35,4 +38,8 @@ type CategoryServicer interface {
 	GetCategories() ([]dto.CategoryResponse, error)
 	UpdateCategory(id string, req *dto.UpdateCategoryRequest) (*dto.CategoryResponse, error)
 	DeleteCategory(id string) error
+}
+
+type UploadServicer interface {
+	UploadProductImage(productId string, file *multipart.FileHeader) (url, altText string, err error)
 }

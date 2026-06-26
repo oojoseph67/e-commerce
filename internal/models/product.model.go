@@ -46,7 +46,6 @@ type ProductImage struct {
 	AltText   string         `json:"alt_text"`
 	IsPrimary bool           `json:"is_primary" gorm:"default:false"`
 	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
 	// relationships
