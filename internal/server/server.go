@@ -39,7 +39,12 @@ func (s *Server) SetupRoutes() *gin.Engine {
 	service := services.NewService(s.db, s.config, s.logger)
 
 	// handlers constructor
-	handler := handlers.NewHandler(service)
+	handler := handlers.NewHandler(
+		service.AuthService,
+		service.UserService,
+		service.ProductService,
+		service.CategoryService,
+	)
 
 	// routes
 	// API v1

@@ -10,7 +10,6 @@ import (
 )
 
 func (h *Handler) CreateCategory(ctx *gin.Context) {
-	service := h.service.CategoryService
 	var req *dto.CreateCategoryRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -18,7 +17,7 @@ func (h *Handler) CreateCategory(ctx *gin.Context) {
 		return
 	}
 
-	category, err := service.CreateCategory(req)
+	category, err := h.categoryService.CreateCategory(req)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt create category", err)
 		return
@@ -28,9 +27,7 @@ func (h *Handler) CreateCategory(ctx *gin.Context) {
 }
 
 func (h *Handler) GetCategories(ctx *gin.Context) {
-	service := h.service.CategoryService
-
-	categories, err := service.GetCategories()
+	categories, err := h.categoryService.GetCategories()
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt get categories", err)
 		return
@@ -40,7 +37,6 @@ func (h *Handler) GetCategories(ctx *gin.Context) {
 }
 
 func (h *Handler) UpdateCategory(ctx *gin.Context) {
-	service := h.service.CategoryService
 	var req *dto.UpdateCategoryRequest
 
 	id := ctx.Param("id")
@@ -55,7 +51,7 @@ func (h *Handler) UpdateCategory(ctx *gin.Context) {
 		return
 	}
 
-	category, err := service.UpdateCategory(id, req)
+	category, err := h.categoryService.UpdateCategory(id, req)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt update category", err)
 		return
@@ -65,14 +61,13 @@ func (h *Handler) UpdateCategory(ctx *gin.Context) {
 }
 
 func (h *Handler) DeleteCategory(ctx *gin.Context) {
-	service := h.service.CategoryService
 	id := ctx.Param("id")
 
 	if id == "" {
 		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
 	}
 
-	if err := service.DeleteCategory(id); err != nil {
+	if err := h.categoryService.DeleteCategory(id); err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt delete category", err)
 		return
 	}

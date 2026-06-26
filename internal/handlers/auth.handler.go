@@ -10,7 +10,6 @@ import (
 )
 
 func (h *Handler) AdminSignup(ctx *gin.Context) {
-	service := h.service.AuthService
 	var req dto.AdminSignupRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -18,7 +17,7 @@ func (h *Handler) AdminSignup(ctx *gin.Context) {
 		return
 	}
 
-	response, err := service.AdminSignup(&req)
+	response, err := h.authService.AdminSignup(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Signup failed", err)
 		return
@@ -28,7 +27,6 @@ func (h *Handler) AdminSignup(ctx *gin.Context) {
 }
 
 func (h *Handler) AdminLogin(ctx *gin.Context) {
-	service := h.service.AuthService
 	var req dto.LoginRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -36,7 +34,7 @@ func (h *Handler) AdminLogin(ctx *gin.Context) {
 		return
 	}
 
-	response, err := service.AdminLogin(&req)
+	response, err := h.authService.AdminLogin(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Login failed", err)
 		return
@@ -46,14 +44,13 @@ func (h *Handler) AdminLogin(ctx *gin.Context) {
 }
 
 func (h *Handler) Signup(ctx *gin.Context) {
-	service := h.service.AuthService
 	var req dto.SignupRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := service.Signup(&req)
+	response, err := h.authService.Signup(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Signup failed", err)
 		return
@@ -63,7 +60,6 @@ func (h *Handler) Signup(ctx *gin.Context) {
 }
 
 func (h *Handler) Login(ctx *gin.Context) {
-	service := h.service.AuthService
 	var req dto.LoginRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -71,7 +67,7 @@ func (h *Handler) Login(ctx *gin.Context) {
 		return
 	}
 
-	response, err := service.Login(&req)
+	response, err := h.authService.Login(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Login failed", err)
 		return
@@ -81,7 +77,6 @@ func (h *Handler) Login(ctx *gin.Context) {
 }
 
 func (h *Handler) RefreshToken(ctx *gin.Context) {
-	service := h.service.AuthService
 	var req dto.RefreshTokenRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -89,7 +84,7 @@ func (h *Handler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	response, err := service.RefreshToken(&req)
+	response, err := h.authService.RefreshToken(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Refresh token failed", err)
 		return
@@ -99,7 +94,6 @@ func (h *Handler) RefreshToken(ctx *gin.Context) {
 }
 
 func (h *Handler) Logout(ctx *gin.Context) {
-	service := h.service.AuthService
 	var req dto.LogoutRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -107,7 +101,7 @@ func (h *Handler) Logout(ctx *gin.Context) {
 		return
 	}
 
-	if err := service.Logout(&req); err != nil {
+	if err := h.authService.Logout(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Logout failed", err)
 		return
 	}

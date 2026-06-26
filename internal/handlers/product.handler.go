@@ -12,7 +12,6 @@ import (
 )
 
 func (h *Handler) CreateProduct(ctx *gin.Context) {
-	service := h.service.ProductService
 	var req *dto.CreateProductRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -20,7 +19,7 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 		return
 	}
 
-	category, err := service.CreateProduct(req)
+	category, err := h.productService.CreateProduct(req)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt create product", err)
 		return
@@ -32,12 +31,11 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 func (h *Handler) GetProducts(ctx *gin.Context) {
 	// page := ctx.Query("page")
 	// limit := ctx.Query("limit")
-	service := h.service.ProductService
 
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 
-	products, pagination, err := service.GetProducts(page, limit)
+	products, pagination, err := h.productService.GetProducts(page, limit)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Failed to retrieve products", err)
 		return
@@ -47,14 +45,13 @@ func (h *Handler) GetProducts(ctx *gin.Context) {
 }
 
 func (h *Handler) GetProduct(ctx *gin.Context) {
-	service := h.service.ProductService
 	id := ctx.Param("id")
 
 	if id == "" {
 		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
 	}
 
-	product, err := service.GetProduct(id)
+	product, err := h.productService.GetProduct(id)
 	if err != nil {
 		responses.NotFoundResponse(ctx, "Couldnt retrieve product", err)
 		return
@@ -65,7 +62,6 @@ func (h *Handler) GetProduct(ctx *gin.Context) {
 }
 
 func (h *Handler) UpdateProduct(ctx *gin.Context) {
-	service := h.service.ProductService
 	var req *dto.UpdateProductRequest
 
 	id := ctx.Param("id")
@@ -79,7 +75,7 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
-	category, err := service.UpdateProduct(id, req)
+	category, err := h.productService.UpdateProduct(id, req)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt update product", err)
 		return
@@ -89,14 +85,13 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 }
 
 func (h *Handler) DeleteProduct(ctx *gin.Context) {
-	service := h.service.ProductService
 	id := ctx.Param("id")
 
 	if id == "" {
 		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
 	}
 
-	if err := service.DeleteProduct(id); err != nil {
+	if err := h.productService.DeleteProduct(id); err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt delete product", err)
 		return
 	}

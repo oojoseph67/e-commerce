@@ -12,14 +12,13 @@ import (
 )
 
 func (h *Handler) Me(ctx *gin.Context) {
-	service := h.service.UserService
 	userId := ctx.GetString(middleware.UserIdAuthKey)
 	if userId == "" {
 		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
 		return
 	}
 
-	profile, err := service.GetUserProfile(userId)
+	profile, err := h.userService.GetUserProfile(userId)
 	if err != nil {
 		responses.NotFoundResponse(ctx, "User not found", err)
 		return
@@ -29,7 +28,6 @@ func (h *Handler) Me(ctx *gin.Context) {
 }
 
 func (h *Handler) UpdateProfile(ctx *gin.Context) {
-	service := h.service.UserService
 	userId := ctx.GetString(middleware.UserIdAuthKey)
 	var req *dto.UpdateProfileRequest
 
@@ -43,7 +41,7 @@ func (h *Handler) UpdateProfile(ctx *gin.Context) {
 		return
 	}
 
-	profile, err := service.UpdateProfile(userId, req)
+	profile, err := h.userService.UpdateProfile(userId, req)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt update profile", err)
 		return
