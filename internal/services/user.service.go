@@ -5,7 +5,7 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/models"
 )
 
-func (s *Services) GetUserProfile(userId string) (*dto.UserResponse, error) {
+func (s *UserService) GetUserProfile(userId string) (*dto.UserResponse, error) {
 	var userModel models.User
 
 	if err := s.db.Where("id = ?", userId).First(&userModel).Error; err != nil {
@@ -26,7 +26,7 @@ func (s *Services) GetUserProfile(userId string) (*dto.UserResponse, error) {
 	return user, nil
 }
 
-func (s *Services) UpdateProfile(userId string, req *dto.UpdateProfileRequest) (*dto.UserResponse, error) {
+func (s *UserService) UpdateProfile(userId string, req *dto.UpdateProfileRequest) (*dto.UserResponse, error) {
 	var userModel models.User
 
 	// find user

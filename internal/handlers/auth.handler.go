@@ -10,13 +10,15 @@ import (
 )
 
 func (h *Handler) AdminSignup(ctx *gin.Context) {
+	service := h.service.AuthService
 	var req dto.AdminSignupRequest
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := h.service.AdminSignup(&req)
+	response, err := service.AdminSignup(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Signup failed", err)
 		return
@@ -26,13 +28,15 @@ func (h *Handler) AdminSignup(ctx *gin.Context) {
 }
 
 func (h *Handler) AdminLogin(ctx *gin.Context) {
+	service := h.service.AuthService
 	var req dto.LoginRequest
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := h.service.AdminLogin(&req)
+	response, err := service.AdminLogin(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Login failed", err)
 		return
@@ -42,13 +46,14 @@ func (h *Handler) AdminLogin(ctx *gin.Context) {
 }
 
 func (h *Handler) Signup(ctx *gin.Context) {
+	service := h.service.AuthService
 	var req dto.SignupRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := h.service.Signup(&req)
+	response, err := service.Signup(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Signup failed", err)
 		return
@@ -58,13 +63,15 @@ func (h *Handler) Signup(ctx *gin.Context) {
 }
 
 func (h *Handler) Login(ctx *gin.Context) {
+	service := h.service.AuthService
 	var req dto.LoginRequest
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := h.service.Login(&req)
+	response, err := service.Login(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Login failed", err)
 		return
@@ -74,13 +81,15 @@ func (h *Handler) Login(ctx *gin.Context) {
 }
 
 func (h *Handler) RefreshToken(ctx *gin.Context) {
+	service := h.service.AuthService
 	var req dto.RefreshTokenRequest
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	response, err := h.service.RefreshToken(&req)
+	response, err := service.RefreshToken(&req)
 	if err != nil {
 		responses.BadRequestResponse(ctx, "Refresh token failed", err)
 		return
@@ -90,13 +99,15 @@ func (h *Handler) RefreshToken(ctx *gin.Context) {
 }
 
 func (h *Handler) Logout(ctx *gin.Context) {
+	service := h.service.AuthService
 	var req dto.LogoutRequest
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
 	}
 
-	if err := h.service.Logout(&req); err != nil {
+	if err := service.Logout(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Logout failed", err)
 		return
 	}

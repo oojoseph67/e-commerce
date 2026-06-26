@@ -12,7 +12,7 @@ import (
 )
 
 // Admin Signup
-func (s *Services) AdminSignup(req *dto.AdminSignupRequest) (*dto.AuthResponse, error) {
+func (s *AuthService) AdminSignup(req *dto.AdminSignupRequest) (*dto.AuthResponse, error) {
 	adminConfig := s.config.Admin
 
 	lowercaseEmail := strings.ToLower(req.Email)
@@ -79,7 +79,7 @@ func (s *Services) AdminSignup(req *dto.AdminSignupRequest) (*dto.AuthResponse, 
 }
 
 // Signup registers a new user.
-func (s *Services) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) {
+func (s *AuthService) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) {
 	lowercaseEmail := strings.ToLower(req.Email)
 
 	// check if user already exists
@@ -131,7 +131,7 @@ func (s *Services) Signup(req *dto.SignupRequest) (*dto.AuthResponse, error) {
 }
 
 // Login authenticates a user.
-func (s *Services) Login(req *dto.LoginRequest) (*dto.AuthResponse, error) {
+func (s *AuthService) Login(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 	lowercaseEmail := strings.ToLower(req.Email)
 
 	var user models.User
@@ -157,7 +157,7 @@ func (s *Services) Login(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 }
 
 // Admin Login
-func (s *Services) AdminLogin(req *dto.LoginRequest) (*dto.AuthResponse, error) {
+func (s *AuthService) AdminLogin(req *dto.LoginRequest) (*dto.AuthResponse, error) {
 	lowercaseEmail := strings.ToLower(req.Email)
 
 	var user models.User
@@ -187,7 +187,7 @@ func (s *Services) AdminLogin(req *dto.LoginRequest) (*dto.AuthResponse, error) 
 }
 
 // RefreshToken exchanges a valid refresh token for a new auth pair.
-func (s *Services) RefreshToken(req *dto.RefreshTokenRequest) (*dto.AuthResponse, error) {
+func (s *AuthService) RefreshToken(req *dto.RefreshTokenRequest) (*dto.AuthResponse, error) {
 	claims, err := jwtp.ValidateToken(req.RefreshToken, s.config.JWT.Secret)
 	if err != nil {
 		s.internalLogger("auth:refresh_token").Warn().Msg("refresh token failed: invalid token")
@@ -223,7 +223,7 @@ func (s *Services) RefreshToken(req *dto.RefreshTokenRequest) (*dto.AuthResponse
 }
 
 // Logout invalidates a refresh token.
-func (s *Services) Logout(req *dto.LogoutRequest) error {
+func (s *AuthService) Logout(req *dto.LogoutRequest) error {
 	var refreshToken models.RefreshToken
 	result := s.db.Where("token = ?", req.RefreshToken).Delete(&refreshToken)
 	if result.Error != nil {
@@ -240,7 +240,7 @@ func (s *Services) Logout(req *dto.LogoutRequest) error {
 	return nil
 }
 
-func (s *Services) generateAuthResponse(user *models.User) (*dto.AuthResponse, error) {
+func (s *AuthService) generateAuthResponse(user *models.User) (*dto.AuthResponse, error) {
 	accessToken, refreshToken, err := jwtp.GenerateTokenPair(
 		&s.config.JWT, user.ID, user.Email, string(user.Role),
 	)

@@ -11,7 +11,7 @@ import (
 
 /**** CATEGORY SERVICES */
 
-func (s *Services) CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
+func (s *ProductService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
 
 	// creating the model
 	categoryModel := models.Category{
@@ -35,7 +35,7 @@ func (s *Services) CreateCategory(req *dto.CreateCategoryRequest) (*dto.Category
 	return category, nil
 }
 
-func (s *Services) GetCategories() ([]dto.CategoryResponse, error) {
+func (s *ProductService) GetCategories() ([]dto.CategoryResponse, error) {
 
 	var categoriesModel []models.Category
 
@@ -69,7 +69,7 @@ func (s *Services) GetCategories() ([]dto.CategoryResponse, error) {
 	return categories, nil
 }
 
-func (s *Services) UpdateCategory(id string, req *dto.UpdateCategoryRequest) (*dto.CategoryResponse, error) {
+func (s *ProductService) UpdateCategory(id string, req *dto.UpdateCategoryRequest) (*dto.CategoryResponse, error) {
 
 	// check if the id exists
 	categoryModel, err := s.getCategory(id)
@@ -106,7 +106,7 @@ func (s *Services) UpdateCategory(id string, req *dto.UpdateCategoryRequest) (*d
 	return category, nil
 }
 
-func (s *Services) DeleteCategory(id string) error {
+func (s *ProductService) DeleteCategory(id string) error {
 	// get category
 	categoryModel, err := s.getCategory(id)
 	if err != nil {
@@ -137,7 +137,7 @@ func (s *Services) DeleteCategory(id string) error {
 	return nil
 }
 
-func (s *Services) getCategory(id string) (*models.Category, error) {
+func (s *ProductService) getCategory(id string) (*models.Category, error) {
 	var categoryModel models.Category
 	if err := s.db.Where("id = ?", id).First(&categoryModel).Error; err != nil {
 		s.internalLogger("category:get_category").Warn().Str("category_id", id).Err(err).Msg("error finding category")
@@ -149,7 +149,7 @@ func (s *Services) getCategory(id string) (*models.Category, error) {
 
 /**** PRODUCT SERVICES */
 
-func (s *Services) CreateProduct(req *dto.CreateProductRequest) (*dto.ProductResponse, error) {
+func (s *ProductService) CreateProduct(req *dto.CreateProductRequest) (*dto.ProductResponse, error) {
 
 	// check if category exists
 	categoryModel, err := s.getCategory(req.CategoryID)
@@ -185,7 +185,7 @@ func (s *Services) CreateProduct(req *dto.CreateProductRequest) (*dto.ProductRes
 	return product, nil
 }
 
-func (s *Services) GetProducts(page, limit int) ([]dto.ProductResponse, *responses.PaginationMeta, error) {
+func (s *ProductService) GetProducts(page, limit int) ([]dto.ProductResponse, *responses.PaginationMeta, error) {
 
 	if page < 1 {
 		page = 1
@@ -233,7 +233,7 @@ func (s *Services) GetProducts(page, limit int) ([]dto.ProductResponse, *respons
 	return products, meta, nil
 }
 
-func (s *Services) GetProduct(id string) (*dto.ProductResponse, error) {
+func (s *ProductService) GetProduct(id string) (*dto.ProductResponse, error) {
 	var productModel models.Product
 	if err := s.db.Where("id = ?", id).First(&productModel).Error; err != nil {
 		s.internalLogger("product:get_product").Warn().Str("product_id", id).Err(err).Msg("error finding product")
@@ -247,7 +247,7 @@ func (s *Services) GetProduct(id string) (*dto.ProductResponse, error) {
 	// return &productModel, nil
 }
 
-func (s *Services) UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto.ProductResponse, error) {
+func (s *ProductService) UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto.ProductResponse, error) {
 
 	// check if the id exists
 	var productModel models.Product
@@ -294,7 +294,7 @@ func (s *Services) UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto
 	return product, nil
 }
 
-func (s *Services) DeleteProduct(id string) error {
+func (s *ProductService) DeleteProduct(id string) error {
 	// get products
 	// productModel, err := s.GetProduct(id)
 	// if err != nil {
@@ -330,7 +330,7 @@ func (s *Services) DeleteProduct(id string) error {
 	return nil
 }
 
-func (s *Services) convertToProductResponse(product *models.Product) *dto.ProductResponse {
+func (s *ProductService) convertToProductResponse(product *models.Product) *dto.ProductResponse {
 
 	images := make([]dto.ProductImageResponse, len(product.Images))
 	for i := range product.Images {
