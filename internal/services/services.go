@@ -25,12 +25,18 @@ type UserService struct {
 
 type ProductService struct {
 	BaseService
+	categoryService CategoryService
+}
+
+type CategoryService struct {
+	BaseService
 }
 
 type Services struct {
-	AuthService    *AuthService
-	UserService    *UserService
-	ProductService *ProductService
+	AuthService     *AuthService
+	UserService     *UserService
+	ProductService  *ProductService
+	CategoryService *CategoryService
 }
 
 func (s *BaseService) internalLogger(service string) *zerolog.Logger {
@@ -62,10 +68,16 @@ func NewService(db *gorm.DB, cfg *config.Config, logger zerolog.Logger) *Service
 		logger: logger,
 	}
 
+	categoryService := &CategoryService{BaseService: base}
+
 	return &Services{
-		AuthService:    &AuthService{BaseService: base},
-		UserService:    &UserService{BaseService: base},
-		ProductService: &ProductService{BaseService: base},
+		AuthService: &AuthService{BaseService: base},
+		UserService: &UserService{BaseService: base},
+		ProductService: &ProductService{
+			BaseService:     base,
+			categoryService: *categoryService,
+		},
+		CategoryService: categoryService,
 	}
 }
 
