@@ -6,6 +6,7 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/models"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
+	"github.com/rs/zerolog"
 	"gorm.io/gorm"
 )
 
@@ -40,7 +41,7 @@ func (s *ProductService) CreateProduct(req *dto.CreateProductRequest) (*dto.Prod
 		return nil, err
 	}
 
-	product := s.convertToProductResponse(&productModel)
+	product := convertToProductResponse(&productModel)
 
 	return product, nil
 }
@@ -67,6 +68,7 @@ func (s *ProductService) GetProducts(page, limit int) ([]dto.ProductResponse, *r
 	err := s.db.Preload("Category", "is_active = ?", true).
 		Preload("Images").
 		Where("is_active = ?", true).
+		Order("created_at DESC").
 		Offset(offset).
 		Limit(limit).
 		Find(&productsModel).
@@ -79,7 +81,7 @@ func (s *ProductService) GetProducts(page, limit int) ([]dto.ProductResponse, *r
 
 	products := make([]dto.ProductResponse, len(productsModel))
 	for i := range productsModel {
-		products[i] = *s.convertToProductResponse(&productsModel[i])
+		products[i] = *convertToProductResponse(&productsModel[i])
 	}
 
 	totalPages := int(total+int64(limit)-1) / int(limit)
@@ -94,17 +96,19 @@ func (s *ProductService) GetProducts(page, limit int) ([]dto.ProductResponse, *r
 }
 
 func (s *ProductService) GetProduct(id string) (*dto.ProductResponse, error) {
-	var productModel models.Product
-	if err := s.db.Where("id = ?", id).First(&productModel).Error; err != nil {
-		s.internalLogger("product:get_product").Warn().Str("product_id", id).Err(err).Msg("error finding product")
-		return nil, errors.New("product not found")
-	}
+	// var productModel models.Product
+	// if err := s.db.Where("id = ?", id).First(&productModel).Error; err != nil {
+	// 	s.internalLogger("product:get_product").Warn().Str("product_id", id).Err(err).Msg("error finding product")
+	// 	return nil, errors.New("product not found")
+	// }
 
-	response := s.convertToProductResponse(&productModel)
+	// response := convertToProductResponse(&productModel)
 
-	return response, nil
+	// return response, nil
 
-	// return &productModel, nil
+	// // return &productModel, nil
+
+	return getProductById(s.db, id, *s.internalLogger("product:get_product"))
 }
 
 func (s *ProductService) UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto.ProductResponse, error) {
@@ -149,7 +153,7 @@ func (s *ProductService) UpdateProduct(id string, req *dto.UpdateProductRequest)
 		return nil, err
 	}
 
-	product := s.convertToProductResponse(&productModel)
+	product := convertToProductResponse(&productModel)
 
 	return product, nil
 }
@@ -221,7 +225,7 @@ func (s *ProductService) DeleteProductImage(productId string) error {
 	return s.db.Unscoped().Where("id = ?", productId).Delete(&productImageModel).Error
 }
 
-func (s *ProductService) convertToProductResponse(product *models.Product) *dto.ProductResponse {
+func convertToProductResponse(product *models.Product) *dto.ProductResponse {
 
 	images := make([]dto.ProductImageResponse, len(product.Images))
 	for i := range product.Images {
@@ -254,4 +258,18 @@ func (s *ProductService) convertToProductResponse(product *models.Product) *dto.
 	}
 
 	return &response
+}
+
+func getProductById(db *gorm.DB, id string, logger zerolog.Logger) (*dto.ProductResponse, error) {
+	var productModel models.Product
+	if err := db.Where("id = ?", id).First(&productModel).Error; err != nil {
+		logger.Warn().Str("product_id", id).Err(err).Msg("error finding product")
+		return nil, errors.New("product not found")
+	}
+
+	response := convertToProductResponse(&productModel)
+
+	return response, nil
+
+	// return &productModel, nil
 }

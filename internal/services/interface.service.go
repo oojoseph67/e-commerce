@@ -44,3 +44,6 @@ type CategoryServicer interface {
 type UploadServicer interface {
 	UploadProductImage(productId string, file *multipart.FileHeader) (url, altText string, err error)
 }
+
+type CartServicer interface {
+}

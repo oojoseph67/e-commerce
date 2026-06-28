@@ -39,12 +39,17 @@ type UploadService struct {
 	provider interfaces.UploadProvider
 }
 
+type CartService struct {
+	BaseService
+}
+
 type Services struct {
 	AuthService     *AuthService
 	UserService     *UserService
 	ProductService  *ProductService
 	CategoryService *CategoryService
 	UploadService   *UploadService
+	CartService     *CartService
 }
 
 func (s *BaseService) internalLogger(service string) *zerolog.Logger {
@@ -95,6 +100,7 @@ func NewService(db *gorm.DB, cfg *config.Config, logger zerolog.Logger) *Service
 		},
 		CategoryService: categoryService,
 		UploadService:   NewUploadService(uploadProvider, base),
+		CartService:     &CartService{BaseService: base},
 	}
 }
 

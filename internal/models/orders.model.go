@@ -53,14 +53,14 @@ type Cart struct {
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
 	// relationship
-	CartItem []CartItem `json:"cart_item"`
+	CartItems []CartItem `json:"cart_items"`
 }
 
 type CartItem struct {
 	ID        string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	CartID    string         `json:"cart_id" gorm:"not null;type:uuid"`
 	ProductID string         `json:"product_id" gorm:"not null;type:uuid"`
-	Quantity  uint           `json:"quantity" gorm:"not null"`
+	Quantity  int           `json:"quantity" gorm:"not null"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
@@ -69,3 +69,34 @@ type CartItem struct {
 	Cart    Cart    `json:"-"`
 	Product Product `json:"product"`
 }
+
+// type CartItem struct {
+//     ProductID string
+//     Prod      Product `gorm:"foreignKey:ProductID"` // field name is "Prod", not "Product"
+// }
+
+// // This will FAIL:
+// db.Preload("CartItems.Product") // ❌ no field named "Product" on CartItem
+
+// // This is correct:
+// db.Preload("CartItems.Prod")    // ✅ matches the struct field name
+
+// Convention (automatic):
+// type CartItem struct {
+//     ProductID string   // FK column: convention is <Assoc> + ID
+//     Product   Product  // GORM auto-links ProductID → Product.ID
+// }
+
+// Explicit (when conventions don't match):
+// type CartItem struct {
+//     ProdID  string  `gorm:"column:item_product_id"`
+//     Product Product `gorm:"foreignKey:ProdID;references:ID"`
+// }
+
+// type CartItem struct {
+//     CartID  string  `gorm:"not null;type:uuid"`  // ← GORM sees this column
+//     ProductID string `gorm:"not null;type:uuid"`  // ← GORM sees this column
+
+//     Cart    Cart    `gorm:"foreignKey:CartID"`     // ← GORM links CartID → Cart.ID
+//     Product Product `gorm:"foreignKey:ProductID"`  // ← GORM links ProductID → Product.ID
+// }

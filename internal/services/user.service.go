@@ -1,29 +1,35 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/models"
+	"github.com/rs/zerolog"
+	"gorm.io/gorm"
 )
 
 func (s *UserService) GetUserProfile(userId string) (*dto.UserResponse, error) {
-	var userModel models.User
+	// var userModel models.User
 
-	if err := s.db.Where("id = ?", userId).First(&userModel).Error; err != nil {
-		s.internalLogger("user:get_user_profile").Warn().Str("user_id", userId).Err(err).Msg("user not found")
-		return nil, err
-	}
+	// if err := s.db.Where("id = ?", userId).First(&userModel).Error; err != nil {
+	// 	s.internalLogger("user:get_user_profile").Warn().Str("user_id", userId).Err(err).Msg("user not found")
+	// 	return nil, err
+	// }
 
-	user := &dto.UserResponse{
-		ID:        userModel.ID,
-		Email:     userModel.Email,
-		FirstName: userModel.FirstName,
-		LastName:  userModel.LastName,
-		Phone:     userModel.Phone,
-		Role:      string(userModel.Role),
-		IsActive:  userModel.IsActive,
-	}
+	// user := &dto.UserResponse{
+	// 	ID:        userModel.ID,
+	// 	Email:     userModel.Email,
+	// 	FirstName: userModel.FirstName,
+	// 	LastName:  userModel.LastName,
+	// 	Phone:     userModel.Phone,
+	// 	Role:      string(userModel.Role),
+	// 	IsActive:  userModel.IsActive,
+	// }
 
-	return user, nil
+	// return user, nil
+
+	return getUser(s.db, userId, *s.internalLogger("user:get_user_profile"))
 }
 
 func (s *UserService) UpdateProfile(userId string, req *dto.UpdateProfileRequest) (*dto.UserResponse, error) {
@@ -55,6 +61,28 @@ func (s *UserService) UpdateProfile(userId string, req *dto.UpdateProfileRequest
 	user, err := s.GetUserProfile(userModel.ID)
 	if err != nil {
 		return nil, err
+	}
+
+	return user, nil
+}
+
+func getUser(db *gorm.DB, userId string, logger zerolog.Logger) (*dto.UserResponse, error) {
+	var userModel models.User
+
+	if err := db.Where("id = ?", userId).First(&userModel).Error; err != nil {
+		logger.Warn().Str("user_id", userId).Err(err).Msg("user not found")
+		return nil, errors.New("user not found")
+		// return nil, err
+	}
+
+	user := &dto.UserResponse{
+		ID:        userModel.ID,
+		Email:     userModel.Email,
+		FirstName: userModel.FirstName,
+		LastName:  userModel.LastName,
+		Phone:     userModel.Phone,
+		Role:      string(userModel.Role),
+		IsActive:  userModel.IsActive,
 	}
 
 	return user, nil

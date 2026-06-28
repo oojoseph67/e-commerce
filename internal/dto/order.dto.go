@@ -10,10 +10,11 @@ type UpdateCartItemRequest struct {
 }
 
 type CartResponse struct {
-	ID        string             `json:"id"`
-	UserID    string             `json:"user_id"`
-	CartItems []CartItemResponse `json:"cart_item"`
-	Total     float64            `json:"total"`
+	ID             string             `json:"id"`
+	UserID         string             `json:"user_id"`
+	CartItems      []CartItemResponse `json:"cart_item"`
+	Total          float64            `json:"total"`
+	TotalCartItems float64            `json:"total_cart_items"`
 }
 
 type CartItemResponse struct {
