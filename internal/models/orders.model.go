@@ -60,7 +60,7 @@ type CartItem struct {
 	ID        string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	CartID    string         `json:"cart_id" gorm:"not null;type:uuid"`
 	ProductID string         `json:"product_id" gorm:"not null;type:uuid"`
-	Quantity  int           `json:"quantity" gorm:"not null"`
+	Quantity  int            `json:"quantity" gorm:"not null"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`

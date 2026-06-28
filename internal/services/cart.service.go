@@ -152,10 +152,8 @@ func (s *CartService) RemoveCartItem(cartItemId, userId string) error {
 }
 
 func (s *CartService) createCart(userId string) (*dto.CartResponse, error) {
-	var userCart models.Cart
-
 	// map model
-	userCart = models.Cart{
+	userCart := models.Cart{
 		UserID: userId,
 	}
 
