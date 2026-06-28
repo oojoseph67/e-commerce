@@ -11,6 +11,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  cdn:
+    image: nginx:alpine
+    container_name: nginx_container
+    ports:
+      - "1235:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../uploads:/var/www/ecommerce-uploads
+    depends_on:
+      - localstack
+
   localstack:
     image: localstack/localstack:3.7
     container_name: localstack_container

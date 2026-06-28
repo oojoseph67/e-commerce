@@ -2,6 +2,7 @@ package providers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	appconfig "github.com/oojoseph67/ecommerce/internal/config"
 	"github.com/rs/zerolog"
 )
@@ -94,7 +96,9 @@ func (p *S3Provider) UploadFile(file *multipart.FileHeader, path string) (url, a
 		urlStr = "https://" + p.bucket + ".s3.amazonaws.com/" + path
 	}
 
-	return urlStr, file.Filename, nil
+	name := fmt.Sprintf("%s%d", file.Filename, time.Now().UnixMilli())
+
+	return urlStr, name, nil
 }
 
 func (p *S3Provider) DeleteFile(path string) error {
@@ -120,5 +124,13 @@ func (p *S3Provider) ensureBucket(ctx context.Context) error {
 	_, err = p.client.CreateBucket(ctx, &s3.CreateBucketInput{
 		Bucket: aws.String(p.bucket),
 	})
+
+	// Ignore if bucket already exists or is already owned
+	var bne *types.BucketAlreadyExists
+	var bno *types.BucketAlreadyOwnedByYou
+	if errors.As(err, &bne) || errors.As(err, &bno) {
+		return nil
+	}
+
 	return err
 }
