@@ -35,7 +35,7 @@ func Auth(secret string) gin.HandlerFunc {
 
 		claims, err := jwtp.ValidateToken(tokenParts[1], secret)
 		if err != nil {
-			responses.UnauthorizedResponse(ctx, "Invalid token", errors.New("invalid token"))
+			responses.UnauthorizedResponse(ctx, "Invalid token", err)
 			ctx.Abort()
 			return
 		}

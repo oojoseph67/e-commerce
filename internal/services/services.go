@@ -78,7 +78,13 @@ func NewService(db *gorm.DB, cfg *config.Config, logger zerolog.Logger) *Service
 
 	categoryService := &CategoryService{BaseService: base}
 
-	uploadProvider := providers.NewLocalUploadProvider(cfg.Upload.Path, *base.internalLogger("upload"))
+	var uploadProvider interfaces.UploadProvider
+
+	if cfg.AWS.UploadStorage == "aws" {
+		uploadProvider = providers.NewS3Provider(&cfg.AWS, logger)
+	} else {
+		uploadProvider = providers.NewLocalUploadProvider(cfg.Upload.Path, *base.internalLogger("upload"))
+	}
 
 	return &Services{
 		AuthService: &AuthService{BaseService: base},

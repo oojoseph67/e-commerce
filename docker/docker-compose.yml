@@ -12,20 +12,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:3.7
     container_name: localstack_container
     environment:
       SERVICES: s3,sqs,lambda,apigateway,dynamodb
       DEFAULT_REGION: us-east-1
       AWS_ACCESS_KEY: test
       AWS_SECRET_ACCESS_KEY: test
-      DATA_DIR: /tmp/localstack/data
     ports:
       - "4566:4566"
       - "4510-4559:4510-4559"
-    volumes:
-      - ./localstack:/tmp/localstack
 
 volumes:
   postgres_data:
-  localstack_data:

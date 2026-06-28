@@ -40,4 +40,4 @@ docker-up: ## Run docker up
 	docker compose -f docker/docker-compose.yml up -d
 
 docker-down: ## Run docker down
-	docker compose -f docker/docker-compose.yml down -d
+	docker compose -f docker/docker-compose.yml down

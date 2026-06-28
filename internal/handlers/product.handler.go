@@ -108,9 +108,6 @@ func (h *Handler) UploadProductImage(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("id:", id)
-	fmt.Println("Content-Type header:", ctx.GetHeader("Content-Type"))
-
 	file, err := ctx.FormFile("productImage")
 	if err != nil {
 		responses.BadRequestResponse(ctx, "No image file uploaded", err)

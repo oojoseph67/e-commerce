@@ -48,6 +48,7 @@ type AWSConfig struct {
 	SecretAccessKey string
 	S3Bucket        string
 	S3Endpoint      string
+	UploadStorage   string
 }
 
 type UploadConfig struct {
@@ -91,6 +92,7 @@ func Load() (*Config, error) {
 
 	uploadPath := getEnv("UPLOAD_PATH", "./uploads")
 	maxUploadSize, _ := strconv.ParseInt(getEnv("MAX_UPLOAD_SIZE", "10485760"), 10, 64)
+	uploadStorage := getEnv("UPLOAD_STORAGE", "local")
 
 	domainName := getEnv("COMPANY_DOMAIN", "example.com")
 	adminCode := getEnv("ADMIN_CODE", "code")
@@ -119,6 +121,7 @@ func Load() (*Config, error) {
 			SecretAccessKey: awsSecretAccessKeyId,
 			S3Bucket:        awsS3Bucket,
 			S3Endpoint:      awsS3Endpoint,
+			UploadStorage:   uploadStorage,
 		},
 		Upload: UploadConfig{
 			Path:        uploadPath,
