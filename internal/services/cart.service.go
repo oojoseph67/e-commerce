@@ -93,6 +93,64 @@ func (s *CartService) AddToCart(req *dto.AddToCartRequest, userId string) (*dto.
 	return s.GetCart(userId)
 }
 
+func (s *CartService) UpdateCartItem(req *dto.UpdateCartItemRequest, cartItemId, userId string) (*dto.CartResponse, error) {
+	// get cart
+	cart, err := s.GetCart(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	// check cart-item exists
+	var cartItemModel models.CartItem
+
+	if err := s.db.Where("cart_id = ? AND id = ?", cart.ID, cartItemId).First(&cartItemModel).Error; err != nil {
+		return nil, errors.New("cart item not found")
+	}
+
+	// check that product exists
+	product, err := getProductById(s.db, cartItemModel.ProductID, *s.internalLogger("update_cart_id:check_product"))
+	if err != nil {
+		return nil, err
+	}
+
+	// check stock is more than enough
+	if product.Stock < req.Quatity {
+		return nil, errors.New("insufficient stock")
+	}
+
+	// update exiting cart item if item already exists
+	cartItemModel.Quantity += req.Quatity
+
+	err = s.db.Model(cartItemModel).Updates(map[string]interface{}{
+		"quantity": cartItemModel.Quantity,
+	}).Error
+
+	if err != nil {
+		s.internalLogger("add_to_cart:add_new_item").Error().Str("product_id", cartItemModel.ProductID).Int("old_quantity", req.Quatity).Int("new_quantity", cartItemModel.Quantity).Err(err).Msg("failed to update item cart")
+		return nil, nil
+	}
+
+	return s.GetCart(userId)
+
+}
+
+func (s *CartService) RemoveCartItem(cartItemId, userId string) error {
+	// get cart
+	cart, err := s.GetCart(userId)
+	if err != nil {
+		return err
+	}
+
+	// check cart-item exists
+	var cartItemModel models.CartItem
+	if err := s.db.Where("id = ? AND cart_id = ?", cartItemId, cart.ID).Delete(&cartItemModel).Error; err != nil {
+		s.internalLogger("cart:remove_cart_id").Warn().Str("cart_item_id", cartItemId).Str("user_id", userId).Err(err).Msg("error removing cart-item")
+		return errors.New("error removing item from cart")
+	}
+
+	return nil
+}
+
 func (s *CartService) createCart(userId string) (*dto.CartResponse, error) {
 	var userCart models.Cart
 
