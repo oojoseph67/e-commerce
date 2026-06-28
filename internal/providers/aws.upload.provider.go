@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"mime"
 	"mime/multipart"
 	"path/filepath"
 	"time"
@@ -79,10 +80,16 @@ func (p *S3Provider) UploadFile(file *multipart.FileHeader, path string) (url, a
 		return "", "", err
 	}
 
+	contentType := mime.TypeByExtension(ext)
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
 	_, err = p.tmClient.UploadObject(ctx, &transfermanager.UploadObjectInput{
-		Bucket: aws.String(p.bucket),
-		Key:    aws.String(path),
-		Body:   src,
+		Bucket:      aws.String(p.bucket),
+		Key:         aws.String(path),
+		Body:        src,
+		ContentType: aws.String(contentType),
 	})
 	if err != nil {
 		p.logger.Err(err).Str("bucket", p.bucket).Str("key", path).Msg("failed to upload to S3")
@@ -96,9 +103,7 @@ func (p *S3Provider) UploadFile(file *multipart.FileHeader, path string) (url, a
 		urlStr = "https://" + p.bucket + ".s3.amazonaws.com/" + path
 	}
 
-	name := fmt.Sprintf("%s%d", file.Filename, time.Now().UnixMilli())
-
-	return urlStr, name, nil
+	return urlStr, newFileName, nil
 }
 
 func (p *S3Provider) DeleteFile(path string) error {
