@@ -18,6 +18,7 @@ type Handler struct {
 	productService  services.ProductServicer
 	categoryService services.CategoryServicer
 	uploadService   services.UploadServicer
+	cartService     services.CartServicer
 }
 
 func NewHandler(
@@ -26,6 +27,7 @@ func NewHandler(
 	product services.ProductServicer,
 	category services.CategoryServicer,
 	upload services.UploadServicer,
+	cart services.CartServicer,
 ) *Handler {
 	return &Handler{
 		authService:     auth,
@@ -33,5 +35,6 @@ func NewHandler(
 		productService:  product,
 		categoryService: category,
 		uploadService:   upload,
+		cartService:     cart,
 	}
 }

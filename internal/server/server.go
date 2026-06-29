@@ -45,6 +45,7 @@ func (s *Server) SetupRoutes() *gin.Engine {
 		service.ProductService,
 		service.CategoryService,
 		service.UploadService,
+		service.CartService,
 	)
 
 	// ROUTES
@@ -95,6 +96,15 @@ func (s *Server) SetupRoutes() *gin.Engine {
 			products.DELETE("/:id", authMiddleware, adminMiddleware, handler.DeleteProduct)
 			products.POST("/:id/upload", authMiddleware, adminMiddleware, handler.UploadProductImage)
 			products.DELETE("/:id/upload", authMiddleware, adminMiddleware, handler.DeleteProductImage)
+		}
+
+		// cart
+		cart := v1.Group("/cart")
+		{
+			cart.GET("/", authMiddleware, handler.GetCart)
+			cart.POST("/items", authMiddleware, handler.AddItemToCart)
+			cart.PATCH("/items/:id", authMiddleware, handler.UpdateCartItem)
+			cart.DELETE("/items/:id", authMiddleware, handler.RemoveCartItem)
 		}
 
 		// Example protected routes

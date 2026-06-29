@@ -46,4 +46,8 @@ type UploadServicer interface {
 }
 
 type CartServicer interface {
+	GetCart(userId string) (*dto.CartResponse, error)
+	AddToCart(req *dto.AddToCartRequest, userId string) (*dto.CartResponse, error)
+	UpdateCartItem(req *dto.UpdateCartItemRequest, cartItemId, userId string) (*dto.CartResponse, error)
+	RemoveCartItem(cartItemId, userId string) error
 }
