@@ -22,6 +22,7 @@ func (s *CartService) GetCart(userId string) (*dto.CartResponse, error) {
 		Preload("CartItems.Product.Category").
 		Preload("CartItems.Product.Images").
 		Where("user_id = ?", userModel.ID).
+		Order("created_at DESC").
 		First(&cartModel).Error
 
 	if err != nil {
@@ -76,7 +77,7 @@ func (s *CartService) AddToCart(req *dto.AddToCartRequest, userId string) (*dto.
 		cartItemModel.Quantity += req.Quatity
 
 		// check stock is more than enough
-		if product.Stock < req.Quatity {
+		if product.Stock < cartItemModel.Quantity {
 			return nil, errors.New("insufficient stock")
 		}
 
@@ -119,10 +120,10 @@ func (s *CartService) UpdateCartItem(req *dto.UpdateCartItemRequest, cartItemId,
 	}
 
 	// update exiting cart item if item already exists
-	cartItemModel.Quantity += req.Quatity
+	// cartItemModel.Quantity += req.Quatity
 
 	err = s.db.Model(cartItemModel).Updates(map[string]interface{}{
-		"quantity": cartItemModel.Quantity,
+		"quantity": req.Quatity,
 	}).Error
 
 	if err != nil {

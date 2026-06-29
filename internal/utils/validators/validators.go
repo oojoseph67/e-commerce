@@ -1,8 +1,10 @@
 package validators
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"reflect"
 	"regexp"
 	"strings"
@@ -48,6 +50,22 @@ func RegisterValidators() error {
 
 // FormatValidationError converts validator errors into human-readable messages.
 func FormatValidationError(err error) error {
+	// Handle empty request body
+	if errors.Is(err, io.EOF) {
+		return errors.New("request body is required; please provide the required JSON fields")
+	}
+
+	// Handle malformed JSON / syntax errors
+	var syntaxErr *json.SyntaxError
+	var unmarshalErr *json.UnmarshalTypeError
+	if errors.As(err, &syntaxErr) {
+		return errors.New("invalid JSON format in request body")
+	}
+	if errors.As(err, &unmarshalErr) {
+		return fmt.Errorf("invalid type for field '%s': expected %s, got %s", unmarshalErr.Field, unmarshalErr.Type.String(), unmarshalErr.Value)
+	}
+
+	// Handle validation errors (missing fields, wrong format, etc.)
 	var validationErrors validator.ValidationErrors
 	if !errors.As(err, &validationErrors) {
 		return err

@@ -61,14 +61,6 @@ func (s *AuthService) AdminSignup(req *dto.AdminSignupRequest) (*dto.AuthRespons
 
 	s.internalLogger("auth:admin_signup").Info().Str("user_id", user.ID).Str("email", lowercaseEmail).Msg("user created")
 
-	// create cart
-	cart := models.Cart{
-		UserID: user.ID,
-	}
-	if err := s.db.Create(&cart).Error; err != nil {
-		s.internalLogger("auth:admin_signup").Warn().Err(err).Str("user_id", user.ID).Msg("failed to create cart for new user")
-	}
-
 	authResponse, err := s.generateAuthResponse(&user)
 	if err != nil {
 		s.internalLogger("auth:admin_signup").Error().Err(err).Str("user_id", user.ID).Msg("failed to generate auth response after signup")

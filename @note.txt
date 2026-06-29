@@ -1,0 +1,140 @@
+# How GORM Preload Works
+
+## The Core Idea
+
+`Preload("A.B.C")` tells GORM to load nested relationships by following **struct field names**, not database table names. GORM generates multiple queries and stitches them together in memory.
+
+---
+
+## Example Model Chain
+
+```go
+type Cart struct {
+    ID        string
+    UserID    string
+    CartItems []CartItem  // ← field name: "CartItems"
+}
+
+type CartItem struct {
+    ID        string
+    CartID    string     // ← foreign key
+    ProductID string     // ← foreign key
+    Quantity  int
+    Product   Product    // ← field name: "Product"
+}
+
+type Product struct {
+    ID         string
+    CategoryID string
+    Name       string
+    Category   Category       // ← field name: "Category"
+    Images     []ProductImage // ← field name: "Images"
+}
+```
+
+---
+
+## The Preload Chain
+
+```go
+db.Preload("CartItems.Product.Category").
+   Preload("CartItems.Product.Images").
+   Where("user_id = ?", userID).
+   First(&cart)
+```
+
+GORM walks the chain using **struct field names**:
+
+| Segment | Looks for field on | Foreign key used |
+|---------|-------------------|------------------|
+| `CartItems` | `Cart` | `CartItem.CartID` |
+| `Product` | `CartItem` | `CartItem.ProductID` |
+| `Category` | `Product` | `Product.CategoryID` |
+| `Images` | `Product` | `ProductImage.ProductID` |
+
+---
+
+## Generated SQL
+
+GORM executes separate queries and matches them in code:
+
+```sql
+-- 1. Load parent
+SELECT * FROM carts WHERE user_id = 'abc-123' LIMIT 1
+-- → Cart{ID: 'cart-1'}
+
+-- 2. Load CartItems
+SELECT * FROM cart_items WHERE cart_id = 'cart-1'
+-- → [CartItem{CartID: 'cart-1', ProductID: 'prod-99'}]
+
+-- 3. Load Products
+SELECT * FROM products WHERE id = 'prod-99'
+-- → Product{ID: 'prod-99', CategoryID: 'cat-5'}
+
+-- 4. Load Categories
+SELECT * FROM categories WHERE id = 'cat-5'
+
+-- 5. Load Images
+SELECT * FROM product_images WHERE product_id = 'prod-99'
+```
+
+GORM matches FK values to PK values and assigns structs automatically.
+
+---
+
+## Key Rules
+
+1. **Use struct field names, not table names**
+   ```go
+   // ✅ Correct
+   db.Preload("CartItems")
+   
+   // ❌ Wrong - this is the table name
+   db.Preload("cart_items")
+   ```
+
+2. **Only chain with `.` for true parent-child**
+   ```go
+   // ✅ Correct - Category and Images are both on Product
+   db.Preload("CartItems.Product.Category").
+      Preload("CartItems.Product.Images")
+   
+   // ❌ Wrong - Category has no Images field
+   db.Preload("CartItems.Product.Category.Images")
+   ```
+
+3. **Pass pointer for preload target**
+   ```go
+   db.Preload("CartItems").First(&cart)  // ← must be pointer
+   ```
+
+4. **GORM reads struct tags, not DB constraints**
+   ```go
+   type CartItem struct {
+       CartID  string  // GORM sees this column
+       Product Product `gorm:"foreignKey:CartID"`  // explicit link
+   }
+   ```
+
+5. **Add conditions to specific levels**
+   ```go
+   db.Preload("CartItems.Product", "is_active = ?", true).
+      Preload("CartItems.Product.Images", "is_primary = ?", true)
+   ```
+
+---
+
+## Where Foreign Keys Come From
+
+By convention, GORM guesses:
+- `Cart` → `cart_id`
+- `Product` → `product_id`
+- `Category` → `category_id`
+
+Override with tags when conventions don't match:
+```go
+type CartItem struct {
+    ItemProdID string
+    Product    Product `gorm:"foreignKey:ItemProdID"`
+}
+```
