@@ -7,13 +7,15 @@ import (
 )
 
 type Order struct {
-	ID          string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	UserID      string         `json:"user_id" gorm:"not null;type:uuid"`
-	Status      OrderStatus    `json:"status" gorm:"default:pending"`
-	TotalAmount float64        `json:"total_amount" gorm:"not null"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `json:"-" gorm:"index"`
+	ID           string         `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	OrderNumber  string         `json:"order_number" gorm:"uniqueIndex;not null;size:50"`
+	CustomerName string         `json:"customer_name" gorm:"not null"`
+	UserID       string         `json:"user_id" gorm:"not null;type:uuid"`
+	Status       OrderStatus    `json:"status" gorm:"default:pending"`
+	TotalAmount  float64        `json:"total_amount" gorm:"not null"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+	DeletedAt    gorm.DeletedAt `json:"-" gorm:"index"`
 
 	// relationship
 	User       User        `json:"user"`

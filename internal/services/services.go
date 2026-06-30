@@ -1,11 +1,17 @@
 package services
 
 import (
+	"time"
+
 	"github.com/oojoseph67/ecommerce/internal/config"
 	"github.com/oojoseph67/ecommerce/internal/providers"
 	"github.com/oojoseph67/ecommerce/internal/utils/interfaces"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
+)
+
+const (
+	defaultDateFormat = time.RFC1123
 )
 
 // STRUCT COMPOSITION: creating a parent struct and splitting the methods into sub-service struct

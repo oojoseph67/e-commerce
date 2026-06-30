@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/models"
@@ -82,10 +84,16 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 			})
 		}
 
+		// generate order number
+		orderNumber := fmt.Sprintf("ORD-%d", time.Now().UnixNano()%1000000)
+		customerName := fmt.Sprintf("%s %s", userModel.FirstName, userModel.LastName)
+
 		// map order
 		orderModel = models.Order{
-			UserID:      userModel.ID,
-			TotalAmount: total,
+			OrderNumber:  orderNumber,
+			CustomerName: customerName,
+			UserID:       userModel.ID,
+			TotalAmount:  total,
 		}
 
 		// create order
@@ -118,29 +126,85 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 		return nil, err
 	}
 
-	if err := s.db.Where("id = ? AND user_id = ?", orderModel.ID, userId).First(&orderModel).Error; err != nil {
+	if err := s.db.Preload("OrderItems.Product.Category").Where("id = ? AND user_id = ?", orderModel.ID, userId).First(&orderModel).Error; err != nil {
 		s.internalLogger("order:create_order").Warn().Str("user_id", userId).Str("order_id", orderModel.ID).Err(err).Msg("couldnt re-query order ")
 		return nil, err
 	}
 
-	orderItems := make([]dto.OrderItemResponse, len(orderModel.OrderItems))
+	orderResponse = covertToOrderResponse(&orderModel)
 
-	for i := range orderModel.OrderItems {
+	return orderResponse, nil
+}
+
+func (s *OrderService) GetOrders(userId string) ([]*dto.OrderResponse, error) {
+	var userModel models.User
+	var ordersModel []models.Order
+
+	// check user exists
+	if err := s.db.Where("id = ? AND is_active = ?", userId, true).First(&userModel).Error; err != nil {
+		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Err(err).Msg("user not found")
+		return nil, err
+	}
+
+	// check order exists
+	if err := s.db.Preload("OrderItems.Product.Category").Where("user_id = ?", userId).Find(&ordersModel).Error; err != nil {
+		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Err(err).Msg("couldnt get user orders")
+		return nil, nil
+	}
+
+	var ordersResponse []*dto.OrderResponse
+
+	for i := range ordersModel {
+		order := ordersModel[i]
+		response := covertToOrderResponse(&order)
+		ordersResponse = append(ordersResponse, response)
+	}
+
+	return ordersResponse, nil
+}
+
+func (s *OrderService) GetOrder(userId, orderId string) (*dto.OrderResponse, error) {
+	var userModel models.User
+	var orderModel models.Order
+
+	// check user exists
+	if err := s.db.Where("id = ? AND is_active = ?", userId, true).First(&userModel).Error; err != nil {
+		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Err(err).Msg("user not found")
+		return nil, err
+	}
+
+	// check order exists
+	if err := s.db.Preload("OrderItems.Product.Category").Where("id = ? AND user_id = ?", orderId, userId).First(&orderModel).Error; err != nil {
+		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Str("order_id", orderId).Err(err).Msg("order not found for user")
+		return nil, err
+	}
+
+	orderResponse := covertToOrderResponse(&orderModel)
+
+	return orderResponse, nil
+}
+
+func covertToOrderResponse(order *models.Order) *dto.OrderResponse {
+	orderItems := make([]dto.OrderItemResponse, len(order.OrderItems))
+
+	for i := range order.OrderItems {
 		orderItems[i] = dto.OrderItemResponse{
-			ID:       orderModel.OrderItems[i].ID,
-			Product:  *convertToProductResponse(&orderModel.OrderItems[i].Product),
-			Quantity: orderModel.OrderItems[i].Quantity,
-			Subtotal: orderModel.OrderItems[i].Subtotal,
+			ID:       order.OrderItems[i].ID,
+			Product:  *convertToProductResponse(&order.OrderItems[i].Product),
+			Quantity: order.OrderItems[i].Quantity,
+			Subtotal: order.OrderItems[i].Subtotal,
 		}
 	}
 
-	orderResponse = &dto.OrderResponse{
-		ID:          orderModel.ID,
-		UserID:      userModel.ID,
-		Status:      string(orderModel.Status),
-		TotalAmount: orderModel.TotalAmount,
-		OrderItems:  orderItems,
+	orderResponse := &dto.OrderResponse{
+		ID:           order.ID,
+		OrderNumber:  order.OrderNumber,
+		CustomerName: order.CustomerName,
+		UserID:       order.UserID,
+		Status:       string(order.Status),
+		TotalAmount:  order.TotalAmount,
+		OrderItems:   orderItems,
+		CreatedAt:    order.CreatedAt.Format(defaultDateFormat),
 	}
-
-	return orderResponse, nil
+	return orderResponse
 }

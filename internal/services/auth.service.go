@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"math/rand"
 	"strings"
 	"time"
 
@@ -265,4 +266,10 @@ func (s *AuthService) generateAuthResponse(user *models.User) (*dto.AuthResponse
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
+}
+
+func generateOtp() int {
+	n := rand.Intn(900000) + 100000 // 6-digit number, 100000-999999
+	return n
+	// return fmt.Sprintf("ORD-%d", n)
 }

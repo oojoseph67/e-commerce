@@ -25,12 +25,14 @@ type CartItemResponse struct {
 }
 
 type OrderResponse struct {
-	ID          string              `json:"id"`
-	UserID      string              `json:"user_id"`
-	Status      string              `json:"status"`
-	TotalAmount float64             `json:"total_amount"`
-	OrderItems  []OrderItemResponse `json:"order_items"`
-	CreatedAt   string              `json:"created_at"`
+	ID           string              `json:"id"`
+	OrderNumber  string              `json:"order_number"`
+	CustomerName string              `json:"customer_name"`
+	UserID       string              `json:"user_id"`
+	Status       string              `json:"status"`
+	TotalAmount  float64             `json:"total_amount"`
+	OrderItems   []OrderItemResponse `json:"order_items"`
+	CreatedAt    string              `json:"created_at"`
 }
 
 type OrderItemResponse struct {
