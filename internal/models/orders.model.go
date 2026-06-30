@@ -35,7 +35,7 @@ type OrderItem struct {
 	OrderID   string         `json:"order_id" gorm:"not null;type:uuid"`
 	ProductID string         `json:"product_id" gorm:"not null;type:uuid"`
 	Quantity  int            `json:"quantity" gorm:"not null"`
-	Price     float64        `json:"price" gorm:"not null"`
+	Subtotal  float64        `json:"subtotal" gorm:"column:subtotal;not null"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`

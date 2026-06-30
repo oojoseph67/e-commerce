@@ -43,6 +43,10 @@ type CartService struct {
 	BaseService
 }
 
+type OrderService struct {
+	BaseService
+}
+
 type Services struct {
 	AuthService     *AuthService
 	UserService     *UserService
@@ -50,6 +54,7 @@ type Services struct {
 	CategoryService *CategoryService
 	UploadService   *UploadService
 	CartService     *CartService
+	OrderService    *OrderService
 }
 
 func (s *BaseService) internalLogger(service string) *zerolog.Logger {
@@ -101,6 +106,7 @@ func NewService(db *gorm.DB, cfg *config.Config, logger zerolog.Logger) *Service
 		CategoryService: categoryService,
 		UploadService:   NewUploadService(uploadProvider, base),
 		CartService:     &CartService{BaseService: base},
+		OrderService:    &OrderService{BaseService: base},
 	}
 }
 

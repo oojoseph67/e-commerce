@@ -37,5 +37,5 @@ type OrderItemResponse struct {
 	ID       string          `json:"id"`
 	Product  ProductResponse `json:"product"`
 	Quantity int             `json:"quantity"`
-	Price    float64         `json:"price"`
+	Subtotal float64         `json:"subtotal"`
 }
