@@ -268,7 +268,7 @@ func (s *AuthService) generateAuthResponse(user *models.User) (*dto.AuthResponse
 	}, nil
 }
 
-func generateOtp() int {
+func _() int {
 	n := rand.Intn(900000) + 100000 // 6-digit number, 100000-999999
 	return n
 	// return fmt.Sprintf("ORD-%d", n)

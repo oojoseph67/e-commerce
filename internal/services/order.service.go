@@ -64,7 +64,7 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 
 			// subtract quantity from product stock
 			if productModel.Stock >= cartItem.Quantity {
-				productModel.Stock = productModel.Stock - cartItem.Quantity
+				productModel.Stock -= cartItem.Quantity
 			} else {
 				err := errors.New("insufficient stock")
 				s.internalLogger("order:create_order").Warn().Str("product_id", cartItem.Product.ID).Err(err).Msg("insufficient stocke")
