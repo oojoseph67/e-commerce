@@ -52,7 +52,7 @@ func (s *ProductService) GetProducts(page, limit int) ([]dto.ProductResponse, *r
 		page = 1
 	}
 
-	if limit < 1 {
+	if limit < 1 || limit > 100 {
 		limit = 10
 	}
 

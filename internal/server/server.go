@@ -46,6 +46,7 @@ func (s *Server) SetupRoutes() *gin.Engine {
 		service.CategoryService,
 		service.UploadService,
 		service.CartService,
+		service.OrderService,
 	)
 
 	// ROUTES

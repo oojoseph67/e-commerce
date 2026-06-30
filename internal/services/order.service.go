@@ -7,6 +7,7 @@ import (
 
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/models"
+	"github.com/oojoseph67/ecommerce/internal/utils/responses"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -136,20 +137,40 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 	return orderResponse, nil
 }
 
-func (s *OrderService) GetOrders(userId string) ([]*dto.OrderResponse, error) {
+func (s *OrderService) GetOrders(userId string, page, limit int) ([]*dto.OrderResponse, *responses.PaginationMeta, error) {
+	if page < 1 {
+		page = 1
+	}
+
+	if limit < 1 || limit > 100 {
+		limit = 10
+	}
+
+	offset := (page - 1) * limit
+
+	var total int64
 	var userModel models.User
 	var ordersModel []models.Order
 
 	// check user exists
 	if err := s.db.Where("id = ? AND is_active = ?", userId, true).First(&userModel).Error; err != nil {
 		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Err(err).Msg("user not found")
-		return nil, err
+		return nil, nil, err
 	}
 
 	// check order exists
-	if err := s.db.Preload("OrderItems.Product.Category").Where("user_id = ?", userId).Find(&ordersModel).Error; err != nil {
+	s.db.Model(&models.Order{}).Where("user_id = ?", userId).Count(&total)
+
+	err := s.db.Preload("OrderItems.Product.Category").
+		Where("user_id = ?", userId).
+		Order("created_at DESC").
+		Offset(offset).
+		Limit(limit).
+		Find(&ordersModel).Error
+
+	if err != nil {
 		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Err(err).Msg("couldnt get user orders")
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	var ordersResponse []*dto.OrderResponse
@@ -160,7 +181,15 @@ func (s *OrderService) GetOrders(userId string) ([]*dto.OrderResponse, error) {
 		ordersResponse = append(ordersResponse, response)
 	}
 
-	return ordersResponse, nil
+	totalPages := int(total+int64(limit)-1) / int(limit)
+	meta := &responses.PaginationMeta{
+		Page:       page,
+		Limit:      limit,
+		Total:      total,
+		TotalPages: totalPages,
+	}
+
+	return ordersResponse, meta, nil
 }
 
 func (s *OrderService) GetOrder(userId, orderId string) (*dto.OrderResponse, error) {

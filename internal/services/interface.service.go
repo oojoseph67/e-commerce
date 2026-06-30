@@ -51,3 +51,9 @@ type CartServicer interface {
 	UpdateCartItem(req *dto.UpdateCartItemRequest, cartItemId, userId string) (*dto.CartResponse, error)
 	RemoveCartItem(cartItemId, userId string) error
 }
+
+type OrderServicer interface {
+	CreateOrder(userId string) (*dto.OrderResponse, error)
+	GetOrders(userId string, page, limit int) ([]*dto.OrderResponse, *responses.PaginationMeta, error)
+	GetOrder(userId, orderId string) (*dto.OrderResponse, error)
+}
