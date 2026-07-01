@@ -1,18 +1,13 @@
 package handlers
 
 import (
-	"errors"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
-	"github.com/oojoseph67/ecommerce/internal/middleware"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
 )
 
 func (h *Handler) CreateOrder(ctx *gin.Context) {
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+	userId, ok := getUserId(ctx)
+	if !ok {
 		return
 	}
 
@@ -23,20 +18,16 @@ func (h *Handler) CreateOrder(ctx *gin.Context) {
 	}
 
 	responses.CreatedResponse(ctx, "Order created successfully", order)
-
 }
 
 func (h *Handler) GetOrder(ctx *gin.Context) {
-	id := ctx.Param("id")
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-
-	if id == "" {
-		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	id, ok := getReqParam(ctx, "id")
+	if !ok {
 		return
 	}
 
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+	userId, ok := getUserId(ctx)
+	if !ok {
 		return
 	}
 
@@ -50,17 +41,14 @@ func (h *Handler) GetOrder(ctx *gin.Context) {
 }
 
 func (h *Handler) GetOrders(ctx *gin.Context) {
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+	userId, ok := getUserId(ctx)
+	if !ok {
 		return
 	}
 
-	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+	page, limit := getPaginationValues(ctx)
 
 	orders, meta, err := h.orderService.GetOrders(userId, page, limit)
-
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt get user orders", err)
 		return

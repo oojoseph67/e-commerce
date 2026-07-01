@@ -1,20 +1,15 @@
 package handlers
 
 import (
-	"errors"
-	_ "net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/dto"
-	"github.com/oojoseph67/ecommerce/internal/middleware"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
 	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
 func (h *Handler) Me(ctx *gin.Context) {
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+	userId, ok := getUserId(ctx)
+	if !ok {
 		return
 	}
 
@@ -28,14 +23,12 @@ func (h *Handler) Me(ctx *gin.Context) {
 }
 
 func (h *Handler) UpdateProfile(ctx *gin.Context) {
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-	var req *dto.UpdateProfileRequest
-
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+	userId, ok := getUserId(ctx)
+	if !ok {
 		return
 	}
 
+	var req *dto.UpdateProfileRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return

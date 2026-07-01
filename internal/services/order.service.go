@@ -138,14 +138,6 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 }
 
 func (s *OrderService) GetOrders(userId string, page, limit int) ([]*dto.OrderResponse, *responses.PaginationMeta, error) {
-	if page < 1 {
-		page = 1
-	}
-
-	if limit < 1 || limit > 100 {
-		limit = 10
-	}
-
 	offset := (page - 1) * limit
 
 	var total int64
@@ -155,7 +147,7 @@ func (s *OrderService) GetOrders(userId string, page, limit int) ([]*dto.OrderRe
 	// check user exists
 	if err := s.db.Where("id = ? AND is_active = ?", userId, true).First(&userModel).Error; err != nil {
 		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Err(err).Msg("user not found")
-		return nil, nil, err
+		return []*dto.OrderResponse{}, nil, err
 	}
 
 	// check order exists

@@ -48,14 +48,6 @@ func (s *ProductService) CreateProduct(req *dto.CreateProductRequest) (*dto.Prod
 
 func (s *ProductService) GetProducts(page, limit int) ([]dto.ProductResponse, *responses.PaginationMeta, error) {
 
-	if page < 1 {
-		page = 1
-	}
-
-	if limit < 1 || limit > 100 {
-		limit = 10
-	}
-
 	offset := (page - 1) * limit
 
 	var productsModel []models.Product

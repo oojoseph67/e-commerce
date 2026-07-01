@@ -1,10 +1,7 @@
 package handlers
 
 import (
-	"errors"
 	"fmt"
-	_ "fmt"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/dto"
@@ -30,11 +27,7 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 }
 
 func (h *Handler) GetProducts(ctx *gin.Context) {
-	// page := ctx.Query("page")
-	// limit := ctx.Query("limit")
-
-	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+	page, limit := getPaginationValues(ctx)
 
 	products, pagination, err := h.productService.GetProducts(page, limit)
 	if err != nil {
@@ -46,10 +39,8 @@ func (h *Handler) GetProducts(ctx *gin.Context) {
 }
 
 func (h *Handler) GetProduct(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	if id == "" {
-		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	id, ok := getReqParam(ctx, "id")
+	if !ok {
 		return
 	}
 
@@ -60,19 +51,15 @@ func (h *Handler) GetProduct(ctx *gin.Context) {
 	}
 
 	responses.SuccessResponse(ctx, "Proudct retrieved successful", product)
-
 }
 
 func (h *Handler) UpdateProduct(ctx *gin.Context) {
-	var req *dto.UpdateProductRequest
-
-	id := ctx.Param("id")
-
-	if id == "" {
-		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	id, ok := getReqParam(ctx, "id")
+	if !ok {
 		return
 	}
 
+	var req *dto.UpdateProductRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
@@ -88,9 +75,9 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 }
 
 func (h *Handler) DeleteProduct(ctx *gin.Context) {
-	id := ctx.Param("id")
-	if id == "" {
-		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	id, ok := getReqParam(ctx, "id")
+	if !ok {
+		return
 	}
 
 	if err := h.productService.DeleteProduct(id); err != nil {
@@ -102,9 +89,8 @@ func (h *Handler) DeleteProduct(ctx *gin.Context) {
 }
 
 func (h *Handler) UploadProductImage(ctx *gin.Context) {
-	id := ctx.Param("id")
-	if id == "" || id == ":id" {
-		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	id, ok := getReqParam(ctx, "id")
+	if !ok {
 		return
 	}
 
@@ -132,9 +118,9 @@ func (h *Handler) UploadProductImage(ctx *gin.Context) {
 }
 
 func (h *Handler) DeleteProductImage(ctx *gin.Context) {
-	id := ctx.Param("id")
-	if id == "" {
-		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	id, ok := getReqParam(ctx, "id")
+	if !ok {
+		return
 	}
 
 	if err := h.productService.DeleteProductImage(id); err != nil {

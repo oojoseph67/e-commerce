@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"errors"
-
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
@@ -37,15 +35,12 @@ func (h *Handler) GetCategories(ctx *gin.Context) {
 }
 
 func (h *Handler) UpdateCategory(ctx *gin.Context) {
-	var req *dto.UpdateCategoryRequest
-
-	id := ctx.Param("id")
-	// strconv.ParseUint(c.Param("id"), 10, 32)
-
-	if id == "" {
-		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	id, ok := getReqParam(ctx, "id")
+	if !ok {
+		return
 	}
 
+	var req *dto.UpdateCategoryRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
@@ -61,10 +56,9 @@ func (h *Handler) UpdateCategory(ctx *gin.Context) {
 }
 
 func (h *Handler) DeleteCategory(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	if id == "" {
-		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+	id, ok := getReqParam(ctx, "id")
+	if !ok {
+		return
 	}
 
 	if err := h.categoryService.DeleteCategory(id); err != nil {

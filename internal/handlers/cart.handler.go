@@ -5,15 +5,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/dto"
-	"github.com/oojoseph67/ecommerce/internal/middleware"
 	"github.com/oojoseph67/ecommerce/internal/utils/responses"
 	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
 func (h *Handler) GetCart(ctx *gin.Context) {
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+	userId, ok := getUserId(ctx)
+	if !ok {
 		return
 	}
 
@@ -26,14 +24,12 @@ func (h *Handler) GetCart(ctx *gin.Context) {
 }
 
 func (h *Handler) AddItemToCart(ctx *gin.Context) {
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-	var req *dto.AddToCartRequest
-
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+	userId, ok := getUserId(ctx)
+	if !ok {
 		return
 	}
 
+	var req *dto.AddToCartRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
@@ -50,18 +46,17 @@ func (h *Handler) AddItemToCart(ctx *gin.Context) {
 
 func (h *Handler) UpdateCartItem(ctx *gin.Context) {
 	id := ctx.Param("id")
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-	var req *dto.UpdateCartItemRequest
-
 	if id == "" {
 		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
-	}
-
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
 		return
 	}
 
+	userId, ok := getUserId(ctx)
+	if !ok {
+		return
+	}
+
+	var req *dto.UpdateCartItemRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		responses.BadRequestResponse(ctx, "Invalid request data", validators.FormatValidationError(err))
 		return
@@ -73,19 +68,17 @@ func (h *Handler) UpdateCartItem(ctx *gin.Context) {
 	}
 
 	responses.SuccessResponse(ctx, "Cart item updated successfully", updateResponse)
-
 }
 
 func (h *Handler) RemoveCartItem(ctx *gin.Context) {
 	id := ctx.Param("id")
-	userId := ctx.GetString(middleware.UserIdAuthKey)
-
 	if id == "" {
 		responses.BadRequestResponse(ctx, "Please provide id param", errors.New("please provide id param"))
+		return
 	}
 
-	if userId == "" {
-		responses.BadRequestResponse(ctx, "user_id not received", errors.New("user_id not received"))
+	userId, ok := getUserId(ctx)
+	if !ok {
 		return
 	}
 
@@ -95,5 +88,4 @@ func (h *Handler) RemoveCartItem(ctx *gin.Context) {
 	}
 
 	responses.SuccessResponse(ctx, "Item removed from cart successfully", nil)
-
 }
