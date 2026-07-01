@@ -108,6 +108,14 @@ func (s *Server) SetupRoutes() *gin.Engine {
 			cart.DELETE("/items/:id", authMiddleware, handler.RemoveCartItem)
 		}
 
+		// order
+		order := v1.Group("/order")
+		{
+			order.GET("/", authMiddleware, handler.GetOrders)
+			order.GET("/:id", authMiddleware, handler.GetOrder)
+			order.POST("/", authMiddleware, handler.CreateOrder)
+		}
+
 		// Example protected routes
 		// protected := v1.Group("/user")
 		// protected.Use(middleware.Auth(s.config.JWT.Secret))

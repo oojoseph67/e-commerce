@@ -20,13 +20,13 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 		return
 	}
 
-	category, err := h.productService.CreateProduct(req)
+	product, err := h.productService.CreateProduct(req)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Couldnt create product", err)
 		return
 	}
 
-	responses.CreatedResponse(ctx, "Product created successful", category)
+	responses.CreatedResponse(ctx, "Product created successful", product)
 }
 
 func (h *Handler) GetProducts(ctx *gin.Context) {
