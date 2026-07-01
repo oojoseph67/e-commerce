@@ -54,6 +54,6 @@ type CartServicer interface {
 
 type OrderServicer interface {
 	CreateOrder(userId string) (*dto.OrderResponse, error)
-	GetOrders(userId string, page, limit int) ([]*dto.OrderResponse, *responses.PaginationMeta, error)
+	GetOrders(userId string, page, limit int) (*dto.OrdersResponse, *responses.PaginationMeta, error)
 	GetOrder(userId, orderId string) (*dto.OrderResponse, error)
 }

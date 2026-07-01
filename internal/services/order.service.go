@@ -127,7 +127,13 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 		return nil, err
 	}
 
-	if err := s.db.Preload("OrderItems.Product.Category").Where("id = ? AND user_id = ?", orderModel.ID, userId).First(&orderModel).Error; err != nil {
+	err = s.db.Preload("User").
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Product.Images").
+		Where("id = ? AND user_id = ?", orderModel.ID, userId).
+		First(&orderModel).Error
+
+	if err != nil {
 		s.internalLogger("order:create_order").Warn().Str("user_id", userId).Str("order_id", orderModel.ID).Err(err).Msg("couldnt re-query order ")
 		return nil, err
 	}
@@ -137,7 +143,7 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 	return orderResponse, nil
 }
 
-func (s *OrderService) GetOrders(userId string, page, limit int) ([]*dto.OrderResponse, *responses.PaginationMeta, error) {
+func (s *OrderService) GetOrders(userId string, page, limit int) (*dto.OrdersResponse, *responses.PaginationMeta, error) {
 	offset := (page - 1) * limit
 
 	var total int64
@@ -147,13 +153,15 @@ func (s *OrderService) GetOrders(userId string, page, limit int) ([]*dto.OrderRe
 	// check user exists
 	if err := s.db.Where("id = ? AND is_active = ?", userId, true).First(&userModel).Error; err != nil {
 		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Err(err).Msg("user not found")
-		return []*dto.OrderResponse{}, nil, err
+		return nil, nil, err
 	}
 
 	// check order exists
 	s.db.Model(&models.Order{}).Where("user_id = ?", userId).Count(&total)
 
-	err := s.db.Preload("OrderItems.Product.Category").
+	err := s.db.
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Product.Images").
 		Where("user_id = ?", userId).
 		Order("created_at DESC").
 		Offset(offset).
@@ -181,7 +189,14 @@ func (s *OrderService) GetOrders(userId string, page, limit int) ([]*dto.OrderRe
 		TotalPages: totalPages,
 	}
 
-	return ordersResponse, meta, nil
+	user, _ := getUser(s.db, userModel.ID, *s.internalLogger("order"))
+
+	fullResponse := &dto.OrdersResponse{
+		Orders: ordersResponse,
+		User:   user,
+	}
+
+	return fullResponse, meta, nil
 }
 
 func (s *OrderService) GetOrder(userId, orderId string) (*dto.OrderResponse, error) {
@@ -195,7 +210,13 @@ func (s *OrderService) GetOrder(userId, orderId string) (*dto.OrderResponse, err
 	}
 
 	// check order exists
-	if err := s.db.Preload("OrderItems.Product.Category").Where("id = ? AND user_id = ?", orderId, userId).First(&orderModel).Error; err != nil {
+	err := s.db.Preload("User").
+		Preload("OrderItems.Product.Category").
+		Preload("OrderItems.Product.Images").
+		Where("id = ? AND user_id = ?", orderId, userId).
+		First(&orderModel).Error
+
+	if err != nil {
 		s.internalLogger("order:get_order").Warn().Str("user_id", userId).Str("order_id", orderId).Err(err).Msg("order not found for user")
 		return nil, err
 	}
@@ -217,6 +238,13 @@ func covertToOrderResponse(order *models.Order) *dto.OrderResponse {
 		}
 	}
 
+	user := dto.UserResponse{
+		ID:        order.User.ID,
+		Email:     order.User.Email,
+		FirstName: order.User.FirstName,
+		LastName:  order.User.LastName,
+	}
+
 	orderResponse := &dto.OrderResponse{
 		ID:           order.ID,
 		OrderNumber:  order.OrderNumber,
@@ -224,6 +252,7 @@ func covertToOrderResponse(order *models.Order) *dto.OrderResponse {
 		UserID:       order.UserID,
 		Status:       string(order.Status),
 		TotalAmount:  order.TotalAmount,
+		User:         user,
 		OrderItems:   orderItems,
 		CreatedAt:    order.CreatedAt.Format(defaultDateFormat),
 	}

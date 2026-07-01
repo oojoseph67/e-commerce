@@ -40,9 +40,9 @@ type UserResponse struct {
 	Email     string `json:"email"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-	Phone     string `json:"phone"`
-	Role      string `json:"role"`
-	IsActive  bool   `json:"is_active"`
+	Phone     string `json:"phone,omitempty"`
+	Role      string `json:"role,omitempty"`
+	IsActive  bool   `json:"is_active,omitempty"`
 }
 
 type UpdateProfileRequest struct {

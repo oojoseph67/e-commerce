@@ -32,7 +32,13 @@ type OrderResponse struct {
 	Status       string              `json:"status"`
 	TotalAmount  float64             `json:"total_amount"`
 	OrderItems   []OrderItemResponse `json:"order_items"`
+	User         UserResponse        `json:"user,omitzero"`
 	CreatedAt    string              `json:"created_at"`
+}
+
+type OrdersResponse struct {
+	Orders []*OrderResponse `json:"orders"`
+	User   *UserResponse    `json:"user"`
 }
 
 type OrderItemResponse struct {
