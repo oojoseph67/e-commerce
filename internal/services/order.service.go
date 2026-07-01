@@ -35,7 +35,7 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 		}
 
 		// get cart items
-		if err := tx.Where("cart_id = ?", cartModel.ID).Find(&cartItemsModel).Error; err != nil {
+		if err := tx.Preload("Product").Where("cart_id = ?", cartModel.ID).Find(&cartItemsModel).Error; err != nil {
 			s.internalLogger("order:create_order").Warn().Str("cart_id", cartModel.ID).Err(err).Msg("couldnt find cart items")
 			return err
 		}
@@ -67,7 +67,7 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 				productModel.Stock -= cartItem.Quantity
 			} else {
 				err := errors.New("insufficient stock")
-				s.internalLogger("order:create_order").Warn().Str("product_id", cartItem.Product.ID).Err(err).Msg("insufficient stocke")
+				s.internalLogger("order:create_order").Warn().Str("product_id", cartItem.Product.ID).Err(err).Msg("insufficient stock")
 				return err
 			}
 
