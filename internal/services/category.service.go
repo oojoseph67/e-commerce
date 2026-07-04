@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/models"
@@ -10,9 +12,16 @@ import (
 
 func (s *CategoryService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
 
+	var existingCategory *models.Category
+	lowercaseName := strings.ToLower(req.Name)
+
+	if err := s.db.Where("name = ?", lowercaseName).First(&existingCategory).Error; err == nil {
+		return nil, fmt.Errorf("category with name: '%s' already exists", lowercaseName)
+	}
+
 	// creating the model
 	categoryModel := models.Category{
-		Name:        req.Name,
+		Name:        lowercaseName,
 		Description: req.Description,
 	}
 
@@ -32,7 +41,7 @@ func (s *CategoryService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.C
 	return category, nil
 }
 
-func (s *CategoryService) GetCategories() ([]dto.CategoryResponse, error) {
+func (s *CategoryService) GetCategories() (*dto.GetCategoriesResponse, error) {
 
 	var categoriesModel []models.Category
 
@@ -63,7 +72,12 @@ func (s *CategoryService) GetCategories() ([]dto.CategoryResponse, error) {
 	// 	}
 	// }
 
-	return categories, nil
+	response := &dto.GetCategoriesResponse{
+		Categories: categories,
+		Total:      len(categories),
+	}
+
+	return response, nil
 }
 
 func (s *CategoryService) UpdateCategory(id string, req *dto.UpdateCategoryRequest) (*dto.CategoryResponse, error) {

@@ -18,6 +18,11 @@ type CategoryResponse struct {
 	IsActive    bool   `json:"is_active"`
 }
 
+type GetCategoriesResponse struct {
+	Categories []CategoryResponse `json:"categories"`
+	Total      int                `json:"total"`
+}
+
 type CreateProductRequest struct {
 	CategoryID  string  `json:"category_id" binding:"required"`
 	Name        string  `json:"name" binding:"required"`

@@ -36,7 +36,7 @@ type ProductServicer interface {
 
 type CategoryServicer interface {
 	CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error)
-	GetCategories() ([]dto.CategoryResponse, error)
+	GetCategories() (*dto.GetCategoriesResponse, error)
 	UpdateCategory(id string, req *dto.UpdateCategoryRequest) (*dto.CategoryResponse, error)
 	DeleteCategory(id string) error
 }
