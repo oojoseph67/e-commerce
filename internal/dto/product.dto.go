@@ -52,6 +52,7 @@ type ProductResponse struct {
 	IsActive    bool                   `json:"is_active"`
 	Category    CategoryResponse       `json:"category"`
 	Images      []ProductImageResponse `json:"images"`
+	Meta        ResponseMeta           `json:"meta"`
 }
 
 type ProductImageResponse struct {
@@ -59,4 +60,9 @@ type ProductImageResponse struct {
 	URL       string `json:"url"`
 	AltText   string `json:"alt_text"`
 	IsPrimary bool   `json:"is_primary"`
+}
+
+type ResponseMeta struct {
+	CreatedAt string `json:"created_at,omitempty"`
+	UpdatedAt string `json:"updated_at,omitempty"`
 }

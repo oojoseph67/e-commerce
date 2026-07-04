@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/oojoseph67/ecommerce/internal/dto"
 	"github.com/oojoseph67/ecommerce/internal/models"
@@ -41,30 +42,55 @@ func (s *ProductService) CreateProduct(req *dto.CreateProductRequest) (*dto.Prod
 		return nil, err
 	}
 
+	// fetch with preloads
+	if err := s.db.Preload("Category").First(&productModel, "id = ?", productModel.ID).Error; err != nil {
+		s.internalLogger("product:create").Warn().Err(err).Msg("error fetching created product")
+		return nil, err
+	}
+
 	product := convertToProductResponse(&productModel)
 
 	return product, nil
 }
 
-func (s *ProductService) GetProducts(page, limit int) ([]dto.ProductResponse, *responses.PaginationMeta, error) {
+func (s *ProductService) GetProducts(page, limit int, category string) ([]dto.ProductResponse, *responses.PaginationMeta, error) {
 
 	offset := (page - 1) * limit
 
 	var productsModel []models.Product
+	var categoryModel models.Category
 	var total int64
 
-	// db search // we use Model when we want to count, update or pluck || when we want to trigger model hooks BeforeFind, AfterFind|| Scopes() or Select()
-	s.db.Where("is_active = ?", true).Find(&productsModel)
-	s.db.Model(&models.Product{}).Where("is_active = ?", true).Count(&total)
+	// check for category exists
+	if err := s.db.Where("name = ? AND is_active = ?", strings.ToLower(category), true).First(&categoryModel).Error; err != nil {
+		// skip dont throw error, continue
+	}
 
-	err := s.db.Preload("Category", "is_active = ?", true).
+	// db search
+	// we use Model when we want to count, update or pluck || when we want to trigger model hooks BeforeFind, AfterFind|| Scopes() or Select()
+	// s.db.Where("is_active = ?", true).Find(&productsModel)
+
+	// count search
+	countQuery := s.db.Model(&models.Product{}).Where("is_active = ?", true)
+
+	if categoryModel.ID != "" {
+		countQuery = countQuery.Where("category_id = ?", categoryModel.ID)
+	}
+	countQuery.Count(&total)
+
+	// products query
+	query := s.db.Preload("Category", "is_active = ?", true).
 		Preload("Images").
-		Where("is_active = ?", true).
-		Order("created_at DESC").
+		Where("is_active = ?", true)
+
+	if categoryModel.ID != "" {
+		query = query.Where("category_id = ?", categoryModel.ID)
+	}
+
+	err := query.Order("created_at DESC").
 		Offset(offset).
 		Limit(limit).
-		Find(&productsModel).
-		Error
+		Find(&productsModel).Error
 
 	if err != nil {
 		s.internalLogger("product:get_products").Warn().Err(err).Msg("error getting products")
@@ -236,6 +262,11 @@ func convertToProductResponse(product *models.Product) *dto.ProductResponse {
 		IsActive:    product.Category.IsActive,
 	}
 
+	meta := dto.ResponseMeta{
+		CreatedAt: product.CreatedAt.Format(defaultDateFormat),
+		UpdatedAt: product.UpdatedAt.Format(defaultDateFormat),
+	}
+
 	response := dto.ProductResponse{
 		ID:          product.ID,
 		Name:        product.Name,
@@ -247,6 +278,7 @@ func convertToProductResponse(product *models.Product) *dto.ProductResponse {
 		IsActive:    product.IsActive,
 		Category:    category,
 		Images:      images,
+		Meta:        meta,
 	}
 
 	return &response

@@ -26,7 +26,7 @@ type UserServicer interface {
 
 type ProductServicer interface {
 	CreateProduct(req *dto.CreateProductRequest) (*dto.ProductResponse, error)
-	GetProducts(page, limit int) ([]dto.ProductResponse, *responses.PaginationMeta, error)
+	GetProducts(page, limit int, category string) ([]dto.ProductResponse, *responses.PaginationMeta, error)
 	GetProduct(id string) (*dto.ProductResponse, error)
 	UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto.ProductResponse, error)
 	DeleteProduct(id string) error

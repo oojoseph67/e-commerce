@@ -29,7 +29,9 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 func (h *Handler) GetProducts(ctx *gin.Context) {
 	page, limit := getPaginationValues(ctx)
 
-	products, pagination, err := h.productService.GetProducts(page, limit)
+	category := ctx.Query("category")
+
+	products, pagination, err := h.productService.GetProducts(page, limit, category)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Failed to retrieve products", err)
 		return
