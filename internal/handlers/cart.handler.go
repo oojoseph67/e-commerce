@@ -18,6 +18,7 @@ func (h *Handler) GetCart(ctx *gin.Context) {
 	userCart, err := h.cartService.GetCart(userId)
 	if err != nil {
 		responses.NotFoundResponse(ctx, "cart not found", err)
+		return
 	}
 
 	responses.SuccessResponse(ctx, "Cart retrieved successfully", userCart)
@@ -65,6 +66,7 @@ func (h *Handler) UpdateCartItem(ctx *gin.Context) {
 	updateResponse, err := h.cartService.UpdateCartItem(req, id, userId)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "Unable to update cart item", err)
+		return
 	}
 
 	responses.SuccessResponse(ctx, "Cart item updated successfully", updateResponse)
@@ -85,6 +87,7 @@ func (h *Handler) RemoveCartItem(ctx *gin.Context) {
 	err := h.cartService.RemoveCartItem(id, userId)
 	if err != nil {
 		responses.InternalServerResponse(ctx, "couldnt remove item from cart", err)
+		return
 	}
 
 	responses.SuccessResponse(ctx, "Item removed from cart successfully", nil)

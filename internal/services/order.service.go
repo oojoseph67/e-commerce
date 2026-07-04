@@ -42,7 +42,7 @@ func (s *OrderService) CreateOrder(userId string) (*dto.OrderResponse, error) {
 
 		// check that there are items in the cart
 		if len(cartItemsModel) == 0 {
-			return errors.New("cant create empty cart")
+			return errors.New("cant create order on empty cart")
 		}
 
 		// validate product stock, update stock, and build order items in one pass
