@@ -61,10 +61,10 @@ func (s *ProductService) GetProducts(page, limit int, category string) ([]dto.Pr
 	var categoryModel models.Category
 	var total int64
 
+	lowercaseCategory := strings.ToLower(category)
+
 	// check for category exists
-	if err := s.db.Where("name = ? AND is_active = ?", strings.ToLower(category), true).First(&categoryModel).Error; err != nil {
-		// skip dont throw error, continue
-	}
+	s.db.Where("name = ? AND is_active = ?", lowercaseCategory, true).First(&categoryModel)
 
 	// db search
 	// we use Model when we want to count, update or pluck || when we want to trigger model hooks BeforeFind, AfterFind|| Scopes() or Select()
@@ -212,26 +212,27 @@ func (s *ProductService) DeleteProduct(id string) error {
 	return nil
 }
 
-func (s *ProductService) AddProductImage(productId string, url, altText string) error {
+func (s *ProductService) AddProductImages(productId string, images []dto.ProductImageUpload) error {
 
 	var productModel models.Product
-
 	if err := s.db.Preload("Images").Where("id = ? AND is_active = ?", productId, true).First(&productModel).Error; err != nil {
-		s.internalLogger("product:add_product_image").Warn().Err(err).Msg("error finding product")
+		s.internalLogger("product:add_product_images").Warn().Err(err).Msg("error finding product")
 		return errors.New("product not found or is not active")
 	}
 
-	isPrimary := len(productModel.Images) == 0
-
-	productImageModel := models.ProductImage{
-		ProductID: productModel.ID,
-		URL:       url,
-		AltText:   altText,
-		IsPrimary: isPrimary,
+	existingCount := len(productModel.Images)
+	var productImages []models.ProductImage
+	for i, img := range images {
+		productImages = append(productImages, models.ProductImage{
+			ProductID: productModel.ID,
+			URL:       img.URL,
+			AltText:   img.AltText,
+			IsPrimary: existingCount == 0 && i == 0, // first image of a product with no images is primary
+		})
 	}
 
-	if err := s.db.Create(&productImageModel).Error; err != nil {
-		s.internalLogger("product:add_product_image").Warn().Err(err).Msg("error adding product image")
+	if err := s.db.Create(&productImages).Error; err != nil {
+		s.internalLogger("product:add_product_images").Warn().Err(err).Msg("error adding product images")
 		return err
 	}
 
@@ -297,3 +298,29 @@ func getProductById(db *gorm.DB, id string, logger zerolog.Logger) (*dto.Product
 
 	// return &productModel, nil
 }
+
+// func (s *ProductService) AddProductImage(productId string, url, altText string) error {
+
+// 	var productModel models.Product
+
+// 	if err := s.db.Preload("Images").Where("id = ? AND is_active = ?", productId, true).First(&productModel).Error; err != nil {
+// 		s.internalLogger("product:add_product_image").Warn().Err(err).Msg("error finding product")
+// 		return errors.New("product not found or is not active")
+// 	}
+
+// 	isPrimary := len(productModel.Images) == 0
+
+// 	productImageModel := models.ProductImage{
+// 		ProductID: productModel.ID,
+// 		URL:       url,
+// 		AltText:   altText,
+// 		IsPrimary: isPrimary,
+// 	}
+
+// 	if err := s.db.Create(&productImageModel).Error; err != nil {
+// 		s.internalLogger("product:add_product_image").Warn().Err(err).Msg("error adding product image")
+// 		return err
+// 	}
+
+// 	return nil
+// }

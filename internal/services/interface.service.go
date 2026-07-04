@@ -30,7 +30,7 @@ type ProductServicer interface {
 	GetProduct(id string) (*dto.ProductResponse, error)
 	UpdateProduct(id string, req *dto.UpdateProductRequest) (*dto.ProductResponse, error)
 	DeleteProduct(id string) error
-	AddProductImage(productId string, url, altText string) error
+	AddProductImages(productId string, images []dto.ProductImageUpload) error
 	DeleteProductImage(imageId string) error
 }
 

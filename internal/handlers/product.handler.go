@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/dto"
@@ -96,27 +96,55 @@ func (h *Handler) UploadProductImage(ctx *gin.Context) {
 		return
 	}
 
-	file, err := ctx.FormFile("productImage")
+	// file, err := ctx.FormFile("productImage")
+	// if err != nil {
+	// 	responses.BadRequestResponse(ctx, "No image file uploaded", err)
+	// 	return
+	// }
+
+	form, err := ctx.MultipartForm()
 	if err != nil {
-		responses.BadRequestResponse(ctx, "No image file uploaded", err)
+		responses.BadRequestResponse(ctx, "No image files uploaded", err)
 		return
 	}
 
-	url, altText, err := h.uploadService.UploadProductImage(id, file)
-	if err != nil {
-		responses.InternalServerResponse(ctx, "Couldnt upload image", err)
+	files := form.File["productImage"]
+	if len(files) == 0 {
+		responses.BadRequestResponse(ctx, "No image files uploaded", errors.New("no files provided"))
 		return
 	}
 
-	fmt.Println(url, altText)
+	// url, altText, err := h.uploadService.UploadProductImage(id, file)
+	// if err != nil {
+	// 	responses.InternalServerResponse(ctx, "Couldnt upload image", err)
+	// 	return
+	// }
 
-	err = h.productService.AddProductImage(id, url, altText)
-	if err != nil {
-		responses.InternalServerResponse(ctx, "Couldnt add image to product", err)
+	var results []dto.ProductImageUpload
+	for _, file := range files {
+		url, altText, err := h.uploadService.UploadProductImage(id, file)
+		if err != nil {
+			responses.InternalServerResponse(ctx, "Couldn't upload image", err)
+			return
+		}
+		results = append(results, dto.ProductImageUpload{
+			URL:     url,
+			AltText: altText,
+		})
+	}
+
+	if err := h.productService.AddProductImages(id, results); err != nil {
+		responses.InternalServerResponse(ctx, "Couldn't add images to product", err)
 		return
 	}
 
-	responses.SuccessResponse(ctx, "Product image added successfully", nil)
+	// err = h.productService.AddProductImage(id, url, altText)
+	// if err != nil {
+	// 	responses.InternalServerResponse(ctx, "Couldnt add image to product", err)
+	// 	return
+	// }
+
+	responses.SuccessResponse(ctx, "Product images added successfully", nil)
 }
 
 func (h *Handler) DeleteProductImage(ctx *gin.Context) {
