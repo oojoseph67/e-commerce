@@ -1036,7 +1036,21 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_oojoseph67_ecommerce_internal_utils_responses.PaginatedResponse'
+            allOf:
+            - $ref: '#/definitions/github_com_oojoseph67_ecommerce_internal_utils_responses.PaginatedResponse'
+            - properties:
+                meta:
+                  $ref: '#/definitions/github_com_oojoseph67_ecommerce_internal_utils_responses.PaginationMeta'
+                response:
+                  allOf:
+                  - $ref: '#/definitions/github_com_oojoseph67_ecommerce_internal_utils_responses.Response'
+                  - properties:
+                      data:
+                        items:
+                          $ref: '#/definitions/github_com_oojoseph67_ecommerce_internal_dto.ProductResponse'
+                        type: array
+                    type: object
+              type: object
         "401":
           description: Unauthorized
           schema:

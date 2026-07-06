@@ -1039,7 +1039,37 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_oojoseph67_ecommerce_internal_utils_responses.PaginatedResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_oojoseph67_ecommerce_internal_utils_responses.PaginatedResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "meta": {
+                                            "$ref": "#/definitions/github_com_oojoseph67_ecommerce_internal_utils_responses.PaginationMeta"
+                                        },
+                                        "response": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/github_com_oojoseph67_ecommerce_internal_utils_responses.Response"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "data": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/github_com_oojoseph67_ecommerce_internal_dto.ProductResponse"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "401": {

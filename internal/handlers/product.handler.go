@@ -49,7 +49,7 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
 // @Param category query string false "Category ID filter"
-// @Success 200 {object} responses.PaginatedResponse
+// @Success 200 {object} responses.PaginatedResponse{response=responses.Response{data=[]dto.ProductResponse},meta=responses.PaginationMeta}
 // @Failure 401 {object} responses.Response
 // @Failure 500 {object} responses.Response
 // @Router /products/ [get]
