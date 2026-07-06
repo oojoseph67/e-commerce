@@ -33,6 +33,8 @@ services:
     ports:
       - "4566:4566"
       - "4510-4559:4510-4559"
+    volumes:
+      - ./localstack/init.localstack.sh:/etc/localstack/init/ready.d/init.sh
 
 volumes:
   postgres_data:

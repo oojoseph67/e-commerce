@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/oojoseph67/ecommerce/internal/config"
 	"github.com/oojoseph67/ecommerce/internal/database"
+	"github.com/oojoseph67/ecommerce/internal/events"
 	"github.com/oojoseph67/ecommerce/internal/logger"
 	"github.com/oojoseph67/ecommerce/internal/server"
 	"github.com/oojoseph67/ecommerce/internal/utils/validators"
@@ -67,9 +68,16 @@ func main() {
 		}
 	}()
 
+	// event publisher
+	ctx := context.Background()
+	eventPublisher, err := events.NewEventPublisher(ctx, &configuration.AWS)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create event publisher")
+	}
+
 	gin.SetMode(configuration.Server.GinMode)
 
-	srv := server.New(configuration, db, log)
+	srv := server.New(configuration, db, log, *eventPublisher)
 	router := srv.SetupRoutes()
 
 	httpServer := &http.Server{

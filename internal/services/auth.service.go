@@ -261,6 +261,11 @@ func (s *AuthService) generateAuthResponse(user *models.User) (*dto.AuthResponse
 		IsActive:  user.IsActive,
 	}
 
+	err = s.eventPublisher.Publish("USER_LOGGED_IN", user, map[string]string{})
+	if err != nil {
+		s.internalLogger("auth:generate_auth_response").Error().Err(err).Msg("unable to publish user login event")
+	}
+
 	return &dto.AuthResponse{
 		User:         userModel,
 		AccessToken:  accessToken,

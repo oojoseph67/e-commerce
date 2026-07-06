@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/oojoseph67/ecommerce/internal/config"
+	"github.com/oojoseph67/ecommerce/internal/events"
 	"github.com/oojoseph67/ecommerce/internal/providers"
 	"github.com/oojoseph67/ecommerce/internal/utils/interfaces"
 	"github.com/rs/zerolog"
@@ -18,9 +19,10 @@ const (
 // embedding
 
 type BaseService struct {
-	db     *gorm.DB
-	config *config.Config
-	logger zerolog.Logger
+	db             *gorm.DB
+	config         *config.Config
+	logger         zerolog.Logger
+	eventPublisher events.Publisher
 }
 
 type AuthService struct {
@@ -84,12 +86,13 @@ func coalescePtr[T any](newVal *T, oldVal T) T {
 	return *newVal
 }
 
-func NewService(db *gorm.DB, cfg *config.Config, logger zerolog.Logger) *Services {
+func NewService(db *gorm.DB, cfg *config.Config, logger zerolog.Logger, eventPublisher events.Publisher) *Services {
 
 	base := BaseService{
-		db:     db,
-		config: cfg,
-		logger: logger,
+		db:             db,
+		config:         cfg,
+		logger:         logger,
+		eventPublisher: eventPublisher,
 	}
 
 	categoryService := &CategoryService{BaseService: base}

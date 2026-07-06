@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/oojoseph67/ecommerce/docs"
 	"github.com/oojoseph67/ecommerce/internal/config"
+	"github.com/oojoseph67/ecommerce/internal/events"
 	"github.com/oojoseph67/ecommerce/internal/handlers"
 	"github.com/oojoseph67/ecommerce/internal/middleware"
 	"github.com/oojoseph67/ecommerce/internal/services"
@@ -15,16 +16,18 @@ import (
 )
 
 type Server struct {
-	config *config.Config
-	db     *gorm.DB
-	logger zerolog.Logger
+	db             *gorm.DB
+	config         *config.Config
+	logger         zerolog.Logger
+	eventPublisher events.EventPublisher
 }
 
-func New(config *config.Config, db *gorm.DB, logger zerolog.Logger) *Server {
+func New(config *config.Config, db *gorm.DB, logger zerolog.Logger, eventPublisher events.EventPublisher) *Server {
 	return &Server{
-		config: config,
-		db:     db,
-		logger: logger,
+		config:         config,
+		db:             db,
+		logger:         logger,
+		eventPublisher: eventPublisher,
 	}
 }
 
@@ -40,7 +43,7 @@ func (s *Server) SetupRoutes() *gin.Engine {
 	adminMiddleware := middleware.Admin()
 
 	// services constructor
-	service := services.NewService(s.db, s.config, s.logger)
+	service := services.NewService(s.db, s.config, s.logger, &s.eventPublisher)
 
 	// handlers constructor
 	handler := handlers.NewHandler(
