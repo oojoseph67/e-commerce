@@ -18,6 +18,27 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
+// @title E-Commerce API
+// @version 1
+// @description A modern e-commerce API built with Go, Gin, and GORM
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name Joseph
+// @contact.url https://josephbuilds.xyz
+// @contact.email oojoseph67@gmail.com
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:1234
+// @BasePath /api/v1
+// @schemes http https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+
 func main() {
 	log := logger.New()
 	configuration, err := config.Load()

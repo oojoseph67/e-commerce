@@ -9,6 +9,17 @@ import (
 	"github.com/oojoseph67/ecommerce/internal/utils/validators"
 )
 
+// GetCart godoc
+// @Summary Get user cart
+// @Description Retrieve the authenticated user's shopping cart
+// @Tags Cart
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} responses.Response{data=dto.CartResponse}
+// @Failure 401 {object} responses.Response
+// @Failure 404 {object} responses.Response
+// @Router /cart/ [get]
 func (h *Handler) GetCart(ctx *gin.Context) {
 	userId, ok := getUserId(ctx)
 	if !ok {
@@ -24,6 +35,18 @@ func (h *Handler) GetCart(ctx *gin.Context) {
 	responses.SuccessResponse(ctx, "Cart retrieved successfully", userCart)
 }
 
+// AddItemToCart godoc
+// @Summary Add item to cart
+// @Description Add a product to the authenticated user's shopping cart
+// @Tags Cart
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body dto.AddToCartRequest true "Product to add to cart"
+// @Success 200 {object} responses.Response{data=dto.CartResponse}
+// @Failure 400 {object} responses.Response
+// @Failure 401 {object} responses.Response
+// @Router /cart/items [post]
 func (h *Handler) AddItemToCart(ctx *gin.Context) {
 	userId, ok := getUserId(ctx)
 	if !ok {
@@ -45,6 +68,19 @@ func (h *Handler) AddItemToCart(ctx *gin.Context) {
 	responses.SuccessResponse(ctx, "Item added", addToCart)
 }
 
+// UpdateCartItem godoc
+// @Summary Update cart item quantity
+// @Description Update the quantity of an item in the shopping cart
+// @Tags Cart
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Cart Item ID"
+// @Param request body dto.UpdateCartItemRequest true "Updated quantity"
+// @Success 200 {object} responses.Response{data=dto.CartItemResponse}
+// @Failure 400 {object} responses.Response
+// @Failure 401 {object} responses.Response
+// @Router /cart/items/{id} [patch]
 func (h *Handler) UpdateCartItem(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
@@ -72,6 +108,18 @@ func (h *Handler) UpdateCartItem(ctx *gin.Context) {
 	responses.SuccessResponse(ctx, "Cart item updated successfully", updateResponse)
 }
 
+// RemoveCartItem godoc
+// @Summary Remove item from cart
+// @Description Remove an item from the shopping cart
+// @Tags Cart
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "Cart Item ID"
+// @Success 200 {object} responses.Response
+// @Failure 400 {object} responses.Response
+// @Failure 401 {object} responses.Response
+// @Router /cart/items/{id} [delete]
 func (h *Handler) RemoveCartItem(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {

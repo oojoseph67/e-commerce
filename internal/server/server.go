@@ -2,12 +2,16 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	_ "github.com/oojoseph67/ecommerce/docs"
 	"github.com/oojoseph67/ecommerce/internal/config"
 	"github.com/oojoseph67/ecommerce/internal/handlers"
 	"github.com/oojoseph67/ecommerce/internal/middleware"
 	"github.com/oojoseph67/ecommerce/internal/services"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Server struct {
@@ -50,6 +54,10 @@ func (s *Server) SetupRoutes() *gin.Engine {
 	)
 
 	// ROUTES
+
+	// documentation routes
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.StaticFile("/api/docs", "./docs/rapidoc.html")
 
 	// upload
 	router.Static("/uploads", "./uploads")
