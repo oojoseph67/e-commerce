@@ -49,6 +49,7 @@ type AWSConfig struct {
 	S3Bucket        string
 	S3Endpoint      string
 	UploadStorage   string
+	EventQueueName  string
 }
 
 type UploadConfig struct {
@@ -89,6 +90,7 @@ func Load() (*Config, error) {
 	awsSecretAccessKeyId := getEnv("AWS_SECRET_ACCESS_KEY_ID", "test")
 	awsS3Bucket := getEnv("AWS_S3_BUCKET", "uploads")
 	awsS3Endpoint := getEnv("AWS_S3_ENDPOINT", "http://localhost:9999")
+	awsEventQueue := getEnv("AWS_EVENT_QUEUE_NAME", "ecommerce-events")
 
 	uploadPath := getEnv("UPLOAD_PATH", "./uploads")
 	maxUploadSize, _ := strconv.ParseInt(getEnv("MAX_UPLOAD_SIZE", "10485760"), 10, 64)
@@ -122,6 +124,7 @@ func Load() (*Config, error) {
 			S3Bucket:        awsS3Bucket,
 			S3Endpoint:      awsS3Endpoint,
 			UploadStorage:   uploadStorage,
+			EventQueueName:  awsEventQueue,
 		},
 		Upload: UploadConfig{
 			Path:        uploadPath,
